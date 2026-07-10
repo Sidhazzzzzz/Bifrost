@@ -43,7 +43,7 @@ class Settings:
     output_path: str = "/output/results.json"
 
     # --- Complexity Evaluation Threshold ---
-    complexity_threshold: float = 0.9
+    complexity_threshold: float = 0.8
 
     # --- Persistent cache ---
     cache_path: str = "/cache/responses.json"
@@ -101,9 +101,9 @@ def load_settings() -> Settings:
     s.output_path = os.getenv("OUTPUT_PATH", "/output/results.json")
     
     try:
-        s.complexity_threshold = float(os.getenv("COMPLEXITY_THRESHOLD", "0.9"))
+        s.complexity_threshold = float(os.getenv("COMPLEXITY_THRESHOLD", "0.8"))
     except ValueError:
-        s.complexity_threshold = 0.9
+        s.complexity_threshold = 0.8
 
     s.cache_path = os.getenv("CACHE_PATH", "/cache/responses.json")
     try:
