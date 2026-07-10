@@ -7,6 +7,8 @@
   'use strict';
 
   // ── State ─────────────────────────────────────────────────
+  // Change this to your backend URL (e.g. 'http://203.0.113.5:8000') if hosted separately
+  const API_BASE = '';
   const state = {
     messages: [],
     stats: null,
@@ -89,7 +91,7 @@
     const typingEl = appendTyping();
 
     try {
-      const res = await fetch('/v1/chat', {
+      const res = await fetch(API_BASE + '/v1/chat', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ message: text }),
@@ -140,7 +142,7 @@
     compareOverlay.classList.add('active');
 
     try {
-      const res = await fetch('/v1/compare', {
+      const res = await fetch(API_BASE + '/v1/compare', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ message: text }),
@@ -198,7 +200,7 @@
   // ── Fetch stats ───────────────────────────────────────────
   async function fetchStats() {
     try {
-      const res = await fetch('/v1/stats');
+      const res = await fetch(API_BASE + '/v1/stats');
       if (!res.ok) return;
       const data = await res.json();
       state.stats = data;
@@ -221,7 +223,7 @@
   // ── Fetch models ──────────────────────────────────────────
   async function fetchModels() {
     try {
-      const res = await fetch('/v1/models');
+      const res = await fetch(API_BASE + '/v1/models');
       if (!res.ok) return;
       const data = await res.json();
       state.models = data.models || [];
