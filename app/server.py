@@ -161,17 +161,6 @@ def create_app(settings: Settings | None = None) -> FastAPI:
         return o
 
     static_dir = Path(__file__).parent / "static"
-    if static_dir.exists():
-        app.mount("/static", StaticFiles(directory=str(static_dir)), name="static")
-
-    @app.get("/", response_class=HTMLResponse)
-    async def landing_page() -> HTMLResponse:
-        index_file = static_dir / "index.html"
-        if index_file.exists():
-            return HTMLResponse(content=index_file.read_text(encoding="utf-8"))
-        return HTMLResponse(
-            content="<h1>Bifrost</h1><p>Frontend not found. Use /v1/chat API.</p>"
-        )
 
     @app.get("/health")
     async def health() -> dict[str, str]:
@@ -328,5 +317,8 @@ def create_app(settings: Settings | None = None) -> FastAPI:
             ],
             "complexity_threshold": settings.complexity_threshold,
         }
+
+    if static_dir.exists():
+        app.mount("/", StaticFiles(directory=str(static_dir), html=True), name="static")
 
     return app
