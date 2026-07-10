@@ -1,0 +1,217 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Bifrost — Intelligent LLM Routing</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/atom-one-dark.min.css">
+  <link rel="stylesheet" href="/static/style.css">
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🌉</text></svg>">
+</head>
+<body>
+
+  <!-- Ambient background -->
+  <div class="ambient-bg">
+    <div class="ambient-orb ambient-orb--1"></div>
+    <div class="ambient-orb ambient-orb--2"></div>
+    <div class="ambient-orb ambient-orb--3"></div>
+  </div>
+
+  <!-- Header -->
+  <header class="site-header">
+    <div class="header-inner">
+      <div class="logo-group">
+        <h1 class="logo">
+          <span class="logo-icon">
+            <svg width="28" height="28" viewBox="0 0 28 28" fill="none">
+              <path d="M14 2L2 8v12l12 6 12-6V8L14 2z" stroke="url(#logo-grad)" stroke-width="2" fill="none"/>
+              <path d="M14 2v24M2 8l12 6 12-6M2 20l12-6 12 6" stroke="url(#logo-grad)" stroke-width="1.5" opacity="0.5"/>
+              <defs><linearGradient id="logo-grad" x1="0" y1="0" x2="28" y2="28"><stop stop-color="#FF6B00"/><stop offset="1" stop-color="#F59E0B"/></linearGradient></defs>
+            </svg>
+          </span>
+          <span class="logo-text">Bifrost</span>
+          <span class="logo-ember"></span>
+        </h1>
+        <p class="tagline">Route smarter. Spend less. Score higher.</p>
+      </div>
+      <div class="header-actions">
+        <div class="model-provider-badge" id="providerBadge" title="Model provider">
+          <span class="provider-dot"></span>
+          <span id="providerName">—</span>
+        </div>
+        <label class="compare-toggle" title="Speed Comparison Mode">
+          <input type="checkbox" id="compareToggle">
+          <span class="toggle-track">
+            <span class="toggle-thumb"></span>
+          </span>
+          <span class="toggle-label">Compare</span>
+        </label>
+      </div>
+    </div>
+  </header>
+
+  <!-- Main Layout -->
+  <main class="app-layout">
+
+    <!-- Chat Panel -->
+    <section class="chat-panel">
+      <div class="panel-chrome">
+        <div class="chrome-dots"><i></i><i></i><i></i></div>
+        <span class="chrome-title">Chat</span>
+        <span class="chrome-badge" id="chatCount">0 messages</span>
+      </div>
+
+      <div class="chat-messages" id="chatMessages">
+        <div class="chat-welcome">
+          <div class="welcome-icon">
+            <svg width="48" height="48" viewBox="0 0 48 48" fill="none">
+              <circle cx="24" cy="24" r="22" stroke="url(#w-grad)" stroke-width="1.5" opacity="0.3"/>
+              <path d="M24 8L12 16v16l12 8 12-8V16L24 8z" fill="url(#w-grad)" opacity="0.15"/>
+              <path d="M24 8v32M12 16l12 8 12-8M12 32l12-8 12 8" stroke="url(#w-grad)" stroke-width="1.5"/>
+              <defs><linearGradient id="w-grad" x1="8" y1="8" x2="40" y2="40"><stop stop-color="#FF6B00"/><stop offset="1" stop-color="#F59E0B"/></linearGradient></defs>
+            </svg>
+          </div>
+          <h3>Welcome to Bifrost</h3>
+          <p>Ask anything. Your query is classified, routed to the optimal model tier, and answered — all in real time.</p>
+          <div class="welcome-hints">
+            <button class="hint-chip" onclick="useHint(this)">"Explain quantum entanglement in simple terms"</button>
+            <button class="hint-chip" onclick="useHint(this)">"What is 2+2?"</button>
+            <button class="hint-chip" onclick="useHint(this)">"Write a Redis caching layer in Python"</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="chat-input-area">
+        <div class="input-wrapper">
+          <textarea id="chatInput" rows="1" placeholder="Type a message…" autocomplete="off"></textarea>
+          <button class="send-btn" id="sendBtn" onclick="handleSend()" title="Send message">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+              <line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/>
+            </svg>
+          </button>
+        </div>
+        <p class="input-hint">Press <kbd>Enter</kbd> to send · <kbd>Shift+Enter</kbd> for new line</p>
+      </div>
+    </section>
+
+    <!-- Analytics Sidebar -->
+    <aside class="analytics-panel">
+      <div class="panel-chrome">
+        <div class="chrome-dots"><i></i><i></i><i></i></div>
+        <span class="chrome-title">Analytics</span>
+        <button class="chrome-refresh" onclick="fetchStats()" title="Refresh stats">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M1 4v6h6M23 20v-6h-6"/><path d="M20.49 9A9 9 0 005.64 5.64L1 10m22 4l-4.64 4.36A9 9 0 013.51 15"/></svg>
+        </button>
+      </div>
+
+      <div class="analytics-scroll">
+        <!-- KPI Strip -->
+        <div class="kpi-strip">
+          <div class="kpi-card">
+            <span class="kpi-value" id="kpiCalls">0</span>
+            <span class="kpi-label">Calls</span>
+          </div>
+          <div class="kpi-card">
+            <span class="kpi-value" id="kpiTokens">0</span>
+            <span class="kpi-label">Tokens</span>
+          </div>
+          <div class="kpi-card">
+            <span class="kpi-value" id="kpiLatency">0<small>ms</small></span>
+            <span class="kpi-label">Avg Latency</span>
+          </div>
+          <div class="kpi-card">
+            <span class="kpi-value" id="kpiErrors">0</span>
+            <span class="kpi-label">Errors</span>
+          </div>
+          <div class="kpi-card kpi-card--accent">
+            <span class="kpi-value" id="kpiVerifications">0</span>
+            <span class="kpi-label">Verify Retries</span>
+          </div>
+        </div>
+
+        <!-- Routing Distribution -->
+        <div class="analytics-card">
+          <h4 class="card-heading">Routing Distribution</h4>
+          <div class="donut-container">
+            <svg id="donutChart" viewBox="0 0 160 160" class="donut-svg">
+              <circle cx="80" cy="80" r="60" fill="none" stroke="rgba(255,255,255,0.04)" stroke-width="22"/>
+              <!-- Segments rendered by JS -->
+            </svg>
+            <div class="donut-center">
+              <span class="donut-total" id="donutTotal">0</span>
+              <span class="donut-sublabel">routed</span>
+            </div>
+          </div>
+          <div class="donut-legend" id="donutLegend">
+            <div class="legend-item"><span class="legend-dot" style="--c:var(--tier-small)"></span>Local<span class="legend-val" id="legendSmall">0</span></div>
+            <div class="legend-item"><span class="legend-dot" style="--c:var(--tier-medium)"></span>Remote<span class="legend-val" id="legendMedium">0</span></div>
+          </div>
+        </div>
+
+        <!-- Token Usage by Category -->
+        <div class="analytics-card">
+          <h4 class="card-heading">Tokens by Category</h4>
+          <div class="bar-chart" id="categoryBars">
+            <p class="empty-state">No data yet</p>
+          </div>
+        </div>
+
+        <!-- Model Tiers -->
+        <div class="analytics-card">
+          <h4 class="card-heading">Model Tiers</h4>
+          <div class="model-tiers" id="modelTiers">
+            <p class="empty-state">Loading…</p>
+          </div>
+        </div>
+      </div>
+    </aside>
+  </main>
+
+  <!-- Compare Results Overlay -->
+  <div class="compare-overlay" id="compareOverlay">
+    <div class="compare-header">
+      <h3>Speed Comparison</h3>
+      <p class="compare-query" id="compareQuery"></p>
+      <button class="compare-close" onclick="closeCompare()">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+      </button>
+    </div>
+    <div class="compare-grid" id="compareGrid"></div>
+  </div>
+
+  <!-- Token Savings Footer -->
+  <footer class="savings-footer" id="savingsFooter">
+    <div class="savings-inner">
+      <div class="savings-label-group">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--accent)" stroke-width="2" stroke-linecap="round"><path d="M12 1v22M17 5H9.5a3.5 3.5 0 000 7h5a3.5 3.5 0 010 7H6"/></svg>
+        <div>
+          <span class="savings-title">Token Savings Report</span>
+          <span class="savings-sub">Bifrost routing vs. naive (always-large) approach</span>
+        </div>
+      </div>
+      <div class="savings-metrics">
+        <div class="savings-metric">
+          <span class="savings-metric-val" id="savActual">0</span>
+          <span class="savings-metric-label">Actual tokens</span>
+        </div>
+        <div class="savings-vs">vs</div>
+        <div class="savings-metric">
+          <span class="savings-metric-val" id="savNaive">0</span>
+          <span class="savings-metric-label">Naive estimate</span>
+        </div>
+        <div class="savings-pct-card">
+          <span class="savings-pct" id="savPct">0%</span>
+          <span class="savings-pct-label">saved</span>
+        </div>
+      </div>
+    </div>
+  </footer>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/marked/11.1.1/marked.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+  <script src="/static/app.js"></script>
+</body>
+</html>

@@ -1,0 +1,39 @@
+services:
+  # ---------------------------------------------------------------
+  # Batch mode — for hackathon submission scoring
+  # Usage: docker compose run bifrost
+  # ---------------------------------------------------------------
+  bifrost:
+    build: .
+    container_name: bifrost-agent
+    environment:
+      - FIREWORKS_API_KEY=${FIREWORKS_API_KEY:-}
+      - FIREWORKS_BASE_URL=${FIREWORKS_BASE_URL:-}
+      - ALLOWED_MODELS=${ALLOWED_MODELS:-}
+      - GROQ_API_KEY=${GROQ_API_KEY:-}
+      - BIFROST_MODE=batch
+      - CACHE_PATH=/cache/responses.json
+    volumes:
+      - ./input:/input:ro
+      - ./output:/output
+      - ./cache:/cache
+
+  # ---------------------------------------------------------------
+  # Demo mode — interactive server with UI
+  # Usage: docker compose up demo
+  # ---------------------------------------------------------------
+  demo:
+    build: .
+    container_name: bifrost-demo
+    ports:
+      - "8000:8000"
+    environment:
+      - GROQ_API_KEY=${GROQ_API_KEY:-}
+      - FIREWORKS_API_KEY=${FIREWORKS_API_KEY:-}
+      - FIREWORKS_BASE_URL=${FIREWORKS_BASE_URL:-}
+      - ALLOWED_MODELS=${ALLOWED_MODELS:-}
+      - BIFROST_MODE=serve
+      - CACHE_PATH=/cache/responses.json
+    volumes:
+      - ./cache:/cache
+    restart: unless-stopped
