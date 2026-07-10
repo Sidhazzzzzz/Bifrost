@@ -93,7 +93,10 @@
     try {
       const res = await fetch(API_BASE + '/v1/chat', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: { 
+          'Content-Type': 'application/json',
+          'Bypass-Tunnel-Reminder': 'true'
+        },
         body: JSON.stringify({ message: text }),
       });
       if (!res.ok) throw new Error(`HTTP ${res.status}`);
@@ -144,7 +147,10 @@
     try {
       const res = await fetch(API_BASE + '/v1/compare', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: { 
+          'Content-Type': 'application/json',
+          'Bypass-Tunnel-Reminder': 'true'
+        },
         body: JSON.stringify({ message: text }),
       });
       if (!res.ok) throw new Error(`HTTP ${res.status}`);
@@ -200,7 +206,9 @@
   // ── Fetch stats ───────────────────────────────────────────
   async function fetchStats() {
     try {
-      const res = await fetch(API_BASE + '/v1/stats');
+      const res = await fetch(API_BASE + '/v1/stats', {
+        headers: { 'Bypass-Tunnel-Reminder': 'true' }
+      });
       if (!res.ok) return;
       const data = await res.json();
       state.stats = data;
@@ -223,7 +231,9 @@
   // ── Fetch models ──────────────────────────────────────────
   async function fetchModels() {
     try {
-      const res = await fetch(API_BASE + '/v1/models');
+      const res = await fetch(API_BASE + '/v1/models', {
+        headers: { 'Bypass-Tunnel-Reminder': 'true' }
+      });
       if (!res.ok) return;
       const data = await res.json();
       state.models = data.models || [];
