@@ -38,10 +38,13 @@ class TaskResult:
 
     def to_submission_dict(self) -> dict[str, Any]:
         """Format for /output/results.json (submission-compliant)."""
-        return {
+        res = {
             "task_id": self.task_id,
-            "answer": self.response,
+            "response": self.response,
         }
+        if self.error:
+            res["error"] = self.error
+        return res
 
     def to_detailed_dict(self) -> dict[str, Any]:
         """Full detail format for analytics/demo."""

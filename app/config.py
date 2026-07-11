@@ -87,11 +87,13 @@ def load_settings() -> Settings:
             if s.allowed_models
             else "accounts/fireworks/models/llama-v3p1-8b-instruct",
         )
+        print(f"[Bifrost] REMOTE configured via Fireworks AI (Model: {s.remote_model})")
     else:
         s.remote_provider = "groq"
-        s.remote_base_url = os.getenv("REMOTE_BASE_URL", "https://api.groq.com/openai/v1")
+        s.remote_base_url = "https://api.groq.com/openai/v1"
         s.remote_api_key = s.groq_api_key
         s.remote_model = os.getenv("REMOTE_MODEL", "llama-3.1-8b-instant")
+        print(f"[Bifrost] WARNING: FIREWORKS_API_KEY/ALLOWED_MODELS missing. Falling back to Groq for REMOTE.")
     
     s.host = os.getenv("HOST", "0.0.0.0")
     s.port = int(os.getenv("PORT", "8000"))
