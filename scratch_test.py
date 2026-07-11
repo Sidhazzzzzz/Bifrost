@@ -1,34 +1,33 @@
 import asyncio
-from app.classifier import classify
-from app.config import Settings
+import os
+from httpx import AsyncClient
 from app.client import LLMClient
-from app.router import ModelRouter
-from app.cache import PersistentResponseCache
-from app.orchestrator import Orchestrator
+from app.classifier import RouteTarget
+from app.prompts import SYSTEM_PROMPTS, Category
+from app.config import get_settings
 
 async def main():
-    settings = Settings()
-    client = LLMClient(
-        local_base_url=settings.local_base_url,
-        remote_base_url=settings.remote_base_url,
-        remote_api_key=settings.remote_api_key,
-        remote_fallback_model=settings.remote_model
-    )
-    router = ModelRouter(settings)
-    cache = PersistentResponseCache(
-        settings.cache_path,
-        settings,
-        similarity_threshold=settings.cache_similarity_threshold,
-        max_entries=settings.cache_max_entries,
-    )
-    orch = Orchestrator(settings, client, router, cache)
-    
-    prompt = '"Summarize this sentence: The quick brown fox jumps over the lazy dog." Submit, and highlight the UI showing it was routed locally'
-    
-    result = await orch.execute_task(prompt)
-    print("Final Result:")
-    import json
-    print(json.dumps(result, indent=2))
+    settings = get_settings()
+    async with AsyncClient() as http_client:
+        client = LLMClient(
+            http_client,
+            remote_base_url="https://api.groq.com/openai/v1",
+            remote_api_key=os.getenv("GROQ_API_KEY", "dummy"),
+            remote_fallback_model="llama-3.1-8b-instant"
+        )
+        messages = [
+            {"role": "system", "content": SYSTEM_PROMPTS[Category.MATH]},
+            {"role": "user", "content": "A bat and a ball cost $1.10 in total. The bat costs $1.00 more than the ball. How much does the ball cost?"}
+        ]
+        resp = await client.chat(
+            messages=messages,
+            target=RouteTarget.LOCAL,
+            model="gemma2:2b",
+            max_tokens=100,
+            temperature=0.1
+        )
+        print("Response:", resp.text)
+        print("Error:", resp.error)
 
 if __name__ == "__main__":
     asyncio.run(main())

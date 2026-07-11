@@ -25,7 +25,7 @@ classify -> deterministic zero-token answer when safe -> local Ollama -> cheapes
 - `FIREWORKS_BASE_URL` - Fireworks endpoint for submission
 - `ALLOWED_MODELS` - comma-separated remote model IDs available to the router
 - `REMOTE_MODEL` - optional remote fallback model
-- `LOCAL_MODEL` - optional local Ollama model, default `gemma4:e2b`
+- `LOCAL_MODEL` - optional local Ollama model, default `gemma2:2b`
 - `COMPLEXITY_THRESHOLD` - score cutoff for remote routing, default `0.5`
 - `BIFROST_MODE` - `batch` or `serve`
 - `OLLAMA_URL` - local Ollama bridge URL

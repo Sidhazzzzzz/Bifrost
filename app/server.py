@@ -322,3 +322,5 @@ def create_app(settings: Settings | None = None) -> FastAPI:
         app.mount("/", StaticFiles(directory=str(static_dir), html=True), name="static")
 
     return app
+
+app = create_app()

@@ -21,7 +21,7 @@ SYSTEM_PROMPTS: dict[Category, str] = {
     Category.MATH: "Solve step-by-step. End with 'Answer: [value]'.",
     Category.LOGIC: "Step-by-step logic. End with 'Conclusion: yes' or 'Conclusion: no'.",
     Category.CODE_DEBUG: "Fix code. Code only.",
-    Category.CODE_GEN: "Code only. No markdown.",
+    Category.CODE_GEN: "Output ONLY raw code. NO markdown formatting. NO backticks. NO explanations.",
     Category.UNKNOWN: "Answer short.",
 }
 
@@ -69,9 +69,9 @@ MAX_TOKENS_HINT: dict[Category, int] = {
     Category.NER:           50,
     Category.FACTUAL:       30,
     Category.SUMMARIZATION: 80,
-    Category.MATH:          100,
-    Category.LOGIC:         150,
-    Category.CODE_DEBUG:    50,
+    Category.MATH:          300,
+    Category.LOGIC:         300,
+    Category.CODE_DEBUG:    300,
     Category.CODE_GEN:      200,
     Category.UNKNOWN:       100,
 }

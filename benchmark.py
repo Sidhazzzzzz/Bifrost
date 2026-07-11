@@ -14,6 +14,7 @@ EVAL_DATASET_PATH = Path("tests/eval_dataset.json")
 class BenchmarkResult:
     total_requests: int
     successful_requests: int
+    failed_requests: int
     total_time: float
     avg_latency: float
     p95_latency: float
@@ -31,23 +32,26 @@ class BenchmarkRunner:
     def __init__(self, base_url: str = "http://localhost:8000"):
         self.base_url = base_url
         
-    async def run_single_prompt(self, client: httpx.AsyncClient, task: Dict[str, Any]) -> Dict[str, Any]:
-        start = time.perf_counter()
-        try:
-            response = await client.post(
-                f"{self.base_url}/v1/chat",
-                json={"message": task["prompt"]},
-                timeout=60.0
-            )
-            response.raise_for_status()
-            data = response.json()
-            data["latency"] = time.perf_counter() - start
-            data["ground_truth"] = task.get("ground_truth", "")
-            data["task_category"] = task.get("category", "")
-            return data
-        except Exception as e:
-            print(f"Error on prompt '{task['prompt']}': {e}")
-            return {"error": str(e), "latency": time.perf_counter() - start, "ground_truth": task.get("ground_truth", "")}
+    async def run_single_prompt(self, client: httpx.AsyncClient, task: Dict[str, Any], sem: asyncio.Semaphore) -> Dict[str, Any]:
+        async with sem:
+            start = time.perf_counter()
+            try:
+                response = await client.post(
+                    f"{self.base_url}/v1/chat",
+                    json={"message": task["prompt"]},
+                    timeout=60.0
+                )
+                if response.status_code != 200:
+                    print(f"Server error on prompt '{task['prompt']}': {response.status_code} {response.text}")
+                response.raise_for_status()
+                data = response.json()
+                data["latency"] = time.perf_counter() - start
+                data["ground_truth"] = task.get("ground_truth", "")
+                data["task_category"] = task.get("category", "")
+                return data
+            except Exception as e:
+                print(f"Error on prompt '{task['prompt']}': {e}")
+                return {"error": str(e), "latency": time.perf_counter() - start, "ground_truth": task.get("ground_truth", "")}
 
     def _evaluate_correctness(self, answer: str, ground_truth: str, category: str) -> bool:
         if not ground_truth:
@@ -66,18 +70,20 @@ class BenchmarkRunner:
 
     async def run_suite(self, dataset: List[Dict[str, Any]]) -> BenchmarkResult:
         start_time = time.perf_counter()
+        sem = asyncio.Semaphore(2)
         
         async with httpx.AsyncClient() as client:
-            tasks = [self.run_single_prompt(client, t) for t in dataset]
+            tasks = [self.run_single_prompt(client, t, sem) for t in dataset]
             results = await asyncio.gather(*tasks)
             
         total_time = time.perf_counter() - start_time
         
         successful = [r for r in results if "error" not in r and "routed_to" in r]
+        failed = [r for r in results if "error" in r or "routed_to" not in r]
         
         if not successful:
             print("All requests failed!")
-            return BenchmarkResult(len(dataset), 0, total_time, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0)
+            return BenchmarkResult(len(dataset), 0, len(failed), total_time, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0)
             
         latencies = [r["latency"] for r in successful]
         avg_latency = float(np.mean(latencies))
@@ -116,6 +122,7 @@ class BenchmarkRunner:
                 "summary": {
                     "total_requests": len(dataset),
                     "successful_requests": len(successful),
+                    "failed_requests": len(failed),
                     "total_time": total_time,
                     "accuracy": accuracy,
                     "avg_latency": avg_latency,
@@ -126,7 +133,8 @@ class BenchmarkRunner:
                     "cache_hits": cache_hits,
                     "estimated_cost": estimated_cost
                 },
-                "results": successful
+                "results": successful,
+                "failed_results": failed
             }, f, indent=2)
             
         with open("leaderboard_report.md", "w") as f:
@@ -141,6 +149,7 @@ class BenchmarkRunner:
         return BenchmarkResult(
             total_requests=len(dataset),
             successful_requests=len(successful),
+            failed_requests=len(failed),
             total_time=total_time,
             avg_latency=avg_latency,
             p95_latency=p95_latency,
@@ -170,6 +179,7 @@ async def main():
     print("\n--- Benchmark Results ---")
     print(f"Total Requests: {result.total_requests}")
     print(f"Successful:     {result.successful_requests}")
+    print(f"Failed:         {result.failed_requests}")
     print(f"Total Time:     {result.total_time:.2f}s")
     print(f"Avg Latency:    {result.avg_latency:.2f}s/req")
     print(f"P95 Latency:    {result.p95_latency:.2f}s/req")

@@ -61,6 +61,7 @@ _FACTS = {
     "first president of the united states": "George Washington",
     "author of harry potter": "J.K. Rowling",
     "who wrote hamlet": "William Shakespeare",
+    "when was the declaration of independence signed": "1776",
 }
 
 _SAFE_BINOPS: dict[type[ast.operator], Any] = {

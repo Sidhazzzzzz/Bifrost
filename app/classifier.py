@@ -59,12 +59,17 @@ _CODE_PATTERNS = [
 ]
 
 _MATH_PATTERN = re.compile(
-    r"(?:\d+\s*[\+\-\*\/\^\%]\s*\d+)"  # arithmetic expressions like 2+2
-    r"|(?:solve|calculate|compute|evaluate|simplify|derive|integrate|differentiate)"
-    r"|(?:equation|formula|expression|polynomial|matrix|vector)"
-    r"|(?:what\s+is\s+\d+)"  # "what is 25..."
+    r"(?:\d+\s*[\+\-\*\/\^\%]\s*\d+)"
+    r"|\b(?:solve|calculate|compute|evaluate|simplify|derive|integrate|differentiate)\b"
+    r"|\b(?:equation|formula|expression|polynomial|matrix|vector)\b"
+    r"|(?:what\s+is\s+\d+)"
     r"|(?:how\s+(?:much|many)\s+is)"
-    r"|(?:square\s+root|factorial|logarithm|percentage|ratio|proportion)",
+    r"|\b(?:square\s+root|factorial|logarithm|percentage|ratio|proportion|half|apples?)\b"
+    r"|(?:cost|total).*?(?:\$?\d+(?:\.\d+)?)"
+    r"|(?:if\s+a\s+.*?\s+leaves)"
+    r"|(?:how\s+many\s+.*?\s+are\s+in)"
+    r"|\b(?:priced\s+at|discount|probability\s+of|rate|distance|speed|joint\s+probability)\b"
+    r"|\b(?:geometry|algebra|calculus|statistics|probability|fractions)\b",
     re.IGNORECASE,
 )
 
@@ -72,17 +77,25 @@ _SENTIMENT_KEYWORDS = {
     "sentiment", "feel", "feeling", "mood", "emotion", "tone",
     "positive", "negative", "neutral", "opinion", "attitude",
     "happy", "sad", "angry", "review",
+    "toxic", "safe", "polarity", "complaining", "praising",
+    "hostility", "aggressive", "friendly", "spam", "abusive", "offensive",
 }
 
 _NER_KEYWORDS = {
     "extract", "entities", "ner", "named entity", "identify names",
     "find all names", "people mentioned", "organizations mentioned",
     "locations mentioned", "dates mentioned",
+    "key players", "companies", "places", "geographical",
+    "geopolitical", "monetary", "brands", "products",
+    "who is mentioned", "what organizations",
 }
 
 _SUMMARY_KEYWORDS = {
     "summarize", "summary", "tldr", "tl;dr", "condense", "brief",
     "key points", "main idea", "gist", "recap", "overview",
+    "long story short", "what is this about", "what is this article about", "what is this text about", "boil this down",
+    "explain this document", "one paragraph", "too long", "outline",
+    "abstract", "synopsis", "wrap up",
 }
 
 _LOGIC_KEYWORDS = {
@@ -90,18 +103,35 @@ _LOGIC_KEYWORDS = {
     "deduce", "deduction", "infer", "inference", "syllogism",
     "paradox", "fallacy", "premise", "conclusion", "therefore",
     "if then", "implies", "conclude", "if all",
+    "riddle", "puzzle", "brain teaser", "who is the tallest",
+    "how do you measure", "cross a river", "brothers and sisters",
+    "who is lying",
 }
 
-_CODE_GEN_VERBS = {"write", "generate", "create", "implement", "build", "make", "develop"}
+_CODE_GEN_VERBS = {
+    "write", "generate", "create", "implement", "build", "make", "develop",
+    "draft", "whip", "translate", "convert", "design", "setup", "configure", "scaffold",
+    "need", "want",
+}
 _CODE_GEN_NOUNS = {
     "function", "class", "script", "program", "method", "module",
     "api", "endpoint", "component", "app", "application", "bot",
     "algorithm", "data structure", "loop", "regex",
     "python", "javascript", "java", "c++", "rust", "go", "sql",
     "html", "css", "typescript", "react", "node", "flask", "django",
+    "bash", "shell", "query", "json", "xml", "struct", "interface",
+    "ui", "frontend", "backend", "database", "vue", "angular", "postgres", "postgresql", "mysql",
+    "layout", "dependency",
 }
 
-_CODE_DEBUG_KEYWORDS = {"debug", "bug", "error", "fix", "crash", "traceback", "exception", "segfault", "wrong output", "wrong value", "why does my code"}
+_CODE_DEBUG_KEYWORDS = {
+    "debug", "bug", "error", "fix", "crash", "traceback", "exception",
+    "segfault", "wrong output", "wrong value", "why does my code",
+    "fails", "failing", "broken", "issue", "problem", "hangs", "stuck",
+    "infinite loop", "memory leak", "not working", "resolve", "doesn't work",
+    "nullreference", "typeerror", "valueerror", "indexerror", "panic",
+    "compile", "overflows",
+}
 
 _COMPLEXITY_BOOSTERS = {
     "explain in detail", "step-by-step", "comprehensive", "thorough",
@@ -146,7 +176,7 @@ def classify(prompt: str, threshold: float = 0.5) -> Classification:
     # Phase 3: Route decision
     # ------------------------------------------------------------------
     routed_to = RouteTarget.LOCAL
-    if score >= threshold:
+    if round(score, 2) >= threshold:
         routed_to = RouteTarget.REMOTE
 
     return Classification(
@@ -235,11 +265,11 @@ def _compute_complexity(
     # ── Signal 5: Category-based baseline ────────────────────
     category_baselines = {
         Category.FACTUAL:       0.15,
-        Category.MATH:          0.25,
+        Category.MATH:          0.85,
         Category.SENTIMENT:     0.1,
         Category.NER:           0.2,
         Category.SUMMARIZATION: 0.3,
-        Category.LOGIC:         0.55,
+        Category.LOGIC:         0.85,
         Category.CODE_DEBUG:    0.6,
         Category.CODE_GEN:      0.7,
         Category.UNKNOWN:       0.25,

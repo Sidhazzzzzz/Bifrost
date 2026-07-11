@@ -12,6 +12,12 @@
     "ground_truth": "150"
   },
   {
+    "task_id": "math_03",
+    "prompt": "Alice has 5 apples. She buys 3 more, then gives half to Bob. How many does she have left?",
+    "category": "mathematical",
+    "ground_truth": "4"
+  },
+  {
     "task_id": "code_01",
     "prompt": "Write a python function to compute the fibonacci sequence up to n using memoization.",
     "category": "code_generation",
@@ -24,10 +30,22 @@
     "ground_truth": "def add(a, b):"
   },
   {
+    "task_id": "code_03",
+    "prompt": "Fix the out of bounds error in this C++ loop: for(int i=0; i<=size; i++) { arr[i] = 0; }",
+    "category": "code_debugging",
+    "ground_truth": "i<size"
+  },
+  {
     "task_id": "reasoning_01",
     "prompt": "If all bloops are razzies and all razzies are lazzies, are all bloops lazzies?",
     "category": "logical_reasoning",
     "ground_truth": "yes"
+  },
+  {
+    "task_id": "reasoning_02",
+    "prompt": "A bat and a ball cost $1.10 in total. The bat costs $1.00 more than the ball. How much does the ball cost in cents?",
+    "category": "logical_reasoning",
+    "ground_truth": "5"
   },
   {
     "task_id": "ner_01",
@@ -40,6 +58,12 @@
     "prompt": "Classify the sentiment of this review: 'The movie was absolutely terrible and I hated it.'",
     "category": "sentiment",
     "ground_truth": "negative"
+  },
+  {
+    "task_id": "classification_02",
+    "prompt": "What is the tone of this message: 'I am so excited and happy for you!'",
+    "category": "sentiment",
+    "ground_truth": "positive"
   },
   {
     "task_id": "summarization_01",
@@ -58,5 +82,11 @@
     "prompt": "Who wrote Romeo and Juliet?",
     "category": "factual",
     "ground_truth": "Shakespeare"
+  },
+  {
+    "task_id": "qa_03",
+    "prompt": "When was the Declaration of Independence signed?",
+    "category": "factual",
+    "ground_truth": "1776"
   }
 ]
