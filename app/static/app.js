@@ -8,7 +8,7 @@
 
   // ── State ─────────────────────────────────────────────────
   // Change this to your backend URL (e.g. 'http://203.0.113.5:8000') if hosted separately
-  const API_BASE = 'https://flat-walls-arrive.loca.lt';
+  const API_BASE = ''; // Use relative paths since frontend and backend share the same server
   const state = {
     messages: [],
     stats: null,
