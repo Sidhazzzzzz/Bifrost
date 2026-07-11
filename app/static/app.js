@@ -8,7 +8,7 @@
 
   // ── State ─────────────────────────────────────────────────
   // Change this to your backend URL (e.g. 'http://203.0.113.5:8000') if hosted separately
-  const API_BASE = ''; // Use relative paths since frontend and backend share the same server
+  const API_BASE = 'http://127.0.0.1:8000'; // Explicitly point to the backend port for local development
   const state = {
     messages: [],
     stats: null,
