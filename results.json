@@ -1,0 +1,112 @@
+[
+  {
+    "task_id": "test-001",
+    "response": "Paris",
+    "model_used": "bifrost-zero-token:fact_table",
+    "category": "factual",
+    "routed_to": "LOCAL",
+    "prompt_tokens": 0,
+    "completion_tokens": 0,
+    "total_tokens": 0,
+    "latency_ms": 0.1269999993382953
+  },
+  {
+    "task_id": "test-002",
+    "response": "2x+5 = 15\nAnswer: x = 5",
+    "model_used": "bifrost-zero-token:linear_equation_solver",
+    "category": "mathematical",
+    "routed_to": "LOCAL",
+    "prompt_tokens": 0,
+    "completion_tokens": 0,
+    "total_tokens": 0,
+    "latency_ms": 0.047900000936351717
+  },
+  {
+    "task_id": "test-003",
+    "response": "Positive",
+    "model_used": "bifrost-zero-token:lexicon_sentiment",
+    "category": "sentiment",
+    "routed_to": "LOCAL",
+    "prompt_tokens": 0,
+    "completion_tokens": 0,
+    "total_tokens": 0,
+    "latency_ms": 0.0442000000475673
+  },
+  {
+    "task_id": "test-004",
+    "response": "Machine learning is a branch of artificial intelligence where systems learn from data without explicit programming, using algorithms to identify patterns and improve their performance over time. This process involves analyzing data to discover insights and make informed decisions based on past experiences.",
+    "model_used": "gemma2:2b",
+    "category": "summarization",
+    "routed_to": "LOCAL",
+    "prompt_tokens": 99,
+    "completion_tokens": 49,
+    "total_tokens": 148,
+    "latency_ms": 0.07470000127796084
+  },
+  {
+    "task_id": "test-005",
+    "response": "Person: Elon Musk\nOrganization: NASA, SpaceX\nLocation: Hawthorne, California\nDate: 2002 in Hawthorne, ",
+    "model_used": "bifrost-zero-token:regex_entity_extractor",
+    "category": "ner",
+    "routed_to": "LOCAL",
+    "prompt_tokens": 0,
+    "completion_tokens": 0,
+    "total_tokens": 0,
+    "latency_ms": 0.03260000084992498
+  },
+  {
+    "task_id": "test-006",
+    "response": "```python\ndef fibonacci(n):\n    if n <= 0:\n        return 0\n    elif n == 1:\n        return 1\n    else:\n        return fibonacci(n-1) + fibonacci(n-2)\n```",
+    "model_used": "llama-3.1-8b-instant",
+    "category": "code_debugging",
+    "routed_to": "REMOTE",
+    "prompt_tokens": 93,
+    "completion_tokens": 49,
+    "total_tokens": 142,
+    "latency_ms": 0.03360000118846074
+  },
+  {
+    "task_id": "test-007",
+    "response": "No. From 'all A are B' and 'some B have property C', it does not follow that any A have property C.\nConclusion: Not necessarily.",
+    "model_used": "bifrost-zero-token:syllogism_guard",
+    "category": "logical_reasoning",
+    "routed_to": "LOCAL",
+    "prompt_tokens": 0,
+    "completion_tokens": 0,
+    "total_tokens": 0,
+    "latency_ms": 0.02719999974942766
+  },
+  {
+    "task_id": "test-008",
+    "response": "def second_largest(nums):\n    if len(nums) < 2:\n        return None\n    unique_nums = set(nums)\n    if len(unique_nums) < 2:\n        return None\n    return sorted(unique_nums)[-2]",
+    "model_used": "llama-3.1-8b-instant",
+    "category": "code_generation",
+    "routed_to": "REMOTE",
+    "prompt_tokens": 73,
+    "completion_tokens": 49,
+    "total_tokens": 122,
+    "latency_ms": 0.029400000130408444
+  },
+  {
+    "task_id": "test-009",
+    "response": "Negative",
+    "model_used": "bifrost-zero-token:lexicon_sentiment",
+    "category": "sentiment",
+    "routed_to": "LOCAL",
+    "prompt_tokens": 0,
+    "completion_tokens": 0,
+    "total_tokens": 0,
+    "latency_ms": 0.028100001145503484
+  },
+  {
+    "task_id": "test-010",
+    "response": "function reverseString(str) {\n    let reversedStr = '';\n    for (let i = str.length - 1; i >= 0; i--) {\n        reversedStr += str[i];\n    }\n    return reversedStr;\n}",
+    "model_used": "llama-3.1-8b-instant",
+    "category": "code_generation",
+    "routed_to": "REMOTE",
+    "prompt_tokens": 69,
+    "completion_tokens": 48,
+    "total_tokens": 117,
+    "latency_ms": 0.025699999241624027
+  }
+]
