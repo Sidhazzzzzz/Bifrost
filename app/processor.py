@@ -40,8 +40,7 @@ class TaskResult:
         """Format for /output/results.json (submission-compliant)."""
         return {
             "task_id": self.task_id,
-            "response": self.response,
-            "model_used": self.model_used,
+            "answer": self.response,
         }
 
     def to_detailed_dict(self) -> dict[str, Any]:
