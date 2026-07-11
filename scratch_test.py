@@ -4,10 +4,10 @@ from httpx import AsyncClient
 from app.client import LLMClient
 from app.classifier import RouteTarget
 from app.prompts import SYSTEM_PROMPTS, Category
-from app.config import get_settings
+from app.config import load_settings
 
 async def main():
-    settings = get_settings()
+    settings = load_settings()
     async with AsyncClient() as http_client:
         client = LLMClient(
             http_client,
