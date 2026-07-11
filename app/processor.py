@@ -24,7 +24,7 @@ from app.orchestrator import Orchestrator
 
 @dataclass
 class TaskResult:
-    task_id: str
+    task_id: Any
     response: str
     model_used: str
     category: str
@@ -59,7 +59,7 @@ class TaskResult:
             "error": self.error,
         }
 
-    def with_task_id(self, task_id: str) -> "TaskResult":
+    def with_task_id(self, task_id: Any) -> "TaskResult":
         return replace(self, task_id=task_id)
 
 
@@ -108,7 +108,7 @@ async def process_single_task(
     semaphore: asyncio.Semaphore,
 ) -> TaskResult:
     """Classify, route, and execute a single task."""
-    task_id = str(task.get("task_id", "unknown"))
+    task_id = task.get("task_id", "unknown")
     prompt = task.get("prompt", task.get("input", task.get("query", "")))
     category_hint = task.get("category", None)
 
@@ -224,7 +224,7 @@ async def run_batch(settings: Settings) -> BatchReport:
 
         results = []
         for task, key in zip(tasks, task_keys):
-            task_id = str(task.get("task_id", "unknown"))
+            task_id = task.get("task_id", "unknown")
             result = result_by_key[key]
             if isinstance(result, TaskResult):
                 results.append(result.with_task_id(task_id))
