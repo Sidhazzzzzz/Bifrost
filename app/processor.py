@@ -40,7 +40,7 @@ class TaskResult:
         """Format for /output/results.json (submission-compliant)."""
         res = {
             "task_id": self.task_id,
-            "response": self.response,
+            "answer": self.response,
         }
         if self.error:
             res["error"] = self.error
