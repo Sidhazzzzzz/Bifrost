@@ -146,20 +146,25 @@ class Orchestrator:
         print(f"[Timing] Task {task_id} | {classification.category.value} | Initial {target.value} call took {llm_resp.latency_ms}ms")
 
         is_good = True
-        if (
-            target == RouteTarget.LOCAL
-            and llm_resp.routed_to == RouteTarget.LOCAL.value
-            and not llm_resp.error
-        ):
-            # Verify Answer
-            is_good = not is_weak_answer(
-                prompt, 
-                llm_resp.text, 
-                classification.category
-            )
+        local_failed = False
+        if target == RouteTarget.LOCAL and (llm_resp.error or llm_resp.routed_to == RouteTarget.LOCAL.value):
+            if llm_resp.error:
+                local_failed = True
+                is_good = False
+            else:
+                # Verify Answer
+                is_good = not is_weak_answer(
+                    prompt, 
+                    llm_resp.text, 
+                    classification.category
+                )
+            
             if not is_good:
-                self.client.stats.total_verification_retries += 1
-                self.router.record_task(classification.category, success=False, verification_failed=True, latency_ms=llm_resp.latency_ms, total_tokens=llm_resp.total_tokens)
+                if not local_failed:
+                    self.client.stats.total_verification_retries += 1
+                    self.router.record_task(classification.category, success=False, verification_failed=True, latency_ms=llm_resp.latency_ms, total_tokens=llm_resp.total_tokens)
+                else:
+                    self.router.record_task(classification.category, success=False, local_failed=True, latency_ms=llm_resp.latency_ms, total_tokens=llm_resp.total_tokens)
                 
                 remote_model = self.router.select_model(
                     RouteTarget.REMOTE,

@@ -89,7 +89,7 @@ class ModelRouter:
                 cat_stats["verification_failures"] += 1
             cat_stats["total_latency"] += latency_ms
             cat_stats["total_tokens"] += total_tokens
-            self._save_stats()
+            self._save_stats_background()
 
     def get_category_stats(self, category: Category) -> dict[str, float]:
         """Return derived statistics for a category."""
@@ -114,6 +114,28 @@ class ModelRouter:
                             self.stats[k].update(v)
             except Exception as e:
                 print(f"[Router] Error loading stats: {e}")
+
+    def _save_stats_background(self) -> None:
+        import asyncio
+        import copy
+        
+        # Deepcopy while holding the lock in the caller's context
+        # (record_task already holds self._lock, so we just copy)
+        stats_copy = copy.deepcopy(self.stats)
+        
+        def do_write():
+            try:
+                with open(self.stats_file, "w") as f:
+                    json.dump(stats_copy, f, indent=2)
+            except Exception:
+                pass
+                
+        try:
+            loop = asyncio.get_running_loop()
+            loop.run_in_executor(None, do_write)
+        except RuntimeError:
+            # Not running in an asyncio event loop, execute synchronously
+            do_write()
 
     def _save_stats(self) -> None:
         try:

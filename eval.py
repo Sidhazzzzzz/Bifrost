@@ -21,7 +21,8 @@ def main():
         print("Usage: python eval.py <results.json>")
         return
         
-    with open("tests/eval_dataset.json") as f:
+    ground_truth_file = sys.argv[2] if len(sys.argv) > 2 else "tests/eval_dataset.json"
+    with open(ground_truth_file) as f:
         eval_data = {item["task_id"]: item for item in json.load(f)}
         
     with open(sys.argv[1]) as f:
@@ -36,12 +37,14 @@ def main():
             continue
         gt = eval_data[task_id]["ground_truth"]
         cat = eval_data[task_id]["category"]
-        if _evaluate_correctness(res["response"], gt, cat):
+        ans = res.get("response", res.get("answer", ""))
+        if _evaluate_correctness(ans, gt, cat):
             correct += 1
         else:
             print(f"FAILED: {task_id}")
             print(f"  Expected: {gt}")
-            print(f"  Got: {res['response']}")
+            got = res.get("response", res.get("answer", ""))
+            print(f"  Got: {got}")
             
     print(f"Accuracy: {correct}/{total} ({correct/total:.1%})")
 

@@ -72,15 +72,9 @@ def is_weak_answer(prompt: str, response: str, category: Category) -> bool:
         return True
 
     if category == Category.SUMMARIZATION:
-        # Verify groundedness: if response introduces significant new words not in prompt, escalate.
-        words = re.findall(r'\b[a-z]{4,}\b', lower)
-        prompt_words = set(re.findall(r'\b[a-z]{4,}\b', prompt.lower()))
-        for w in words:
-            if w not in prompt_words:
-                return True
-        # Even if grounded, we can't be sure it's a good summary, but it passes the basic groundedness check.
-        # But wait, instruction says: "any category without strong, verified correctness checking should escalate".
-        # Let's escalate if it's too long, or just always escalate? Let's leave the groundedness check.
+        # Summarization is too open-ended and cannot be strongly verified locally.
+        # Force escalation to remote.
+        return True
 
     if category == Category.NER:
         if ":" not in text and "," not in text:

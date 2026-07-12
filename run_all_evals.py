@@ -2,7 +2,7 @@ import json
 import asyncio
 import time
 from app.orchestrator import Orchestrator
-from app.config import Settings
+from app.config import Settings, load_settings
 from app.client import LLMClient
 from app.router import ModelRouter
 from app.cache import PersistentResponseCache
@@ -13,10 +13,15 @@ async def main():
     if os.path.exists('C:\\cache\\responses.json'):
         os.remove('C:\\cache\\responses.json')
         
-    s = Settings()
-    c = LLMClient(s)
+    s = load_settings()
+    c = LLMClient(
+        local_base_url=s.local_base_url,
+        remote_base_url=s.remote_base_url,
+        remote_api_key=s.remote_api_key,
+        remote_fallback_model=s.remote_model,
+    )
     r = ModelRouter(s)
-    cache = PersistentResponseCache(s)
+    cache = PersistentResponseCache(s.cache_path, s)
     orch = Orchestrator(s, c, r, cache)
     
     datasets = ['very_easy', 'easy', 'moderate', 'hard', 'very_hard']
@@ -28,10 +33,10 @@ async def main():
         
         correct = 0
         total_tokens = 0
-        cache.exact_cache.clear()
+        
         
         for task in tasks:
-            resp = await orch.execute_task(task['prompt'])
+            resp = await orch.execute_task(task.get('task_id', f'{ds_name}_{correct}'), task['prompt'])
             total_tokens += resp['total_tokens']
             
             got = str(resp.get('response', '')).lower()

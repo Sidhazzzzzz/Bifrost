@@ -193,48 +193,7 @@ class LLMClient:
                 last_error = f"{type(exc).__name__}: {str(exc)[:200]}"
                 break
 
-        # --- Escalate to REMOTE when LOCAL fails ---
-        if target == RouteTarget.LOCAL and last_error:
-            print(f"[Bifrost Escalation] Local query failed ({last_error}). Escalating to REMOTE...")
-            try:
-                start_time = time.perf_counter()
-                resp = await self._remote_client.post(
-                    "/chat/completions",
-                    json={
-                        "model": self._remote_fallback_model,
-                        "messages": messages,
-                        "max_tokens": max_tokens,
-                        "temperature": temperature,
-                    },
-                    timeout=httpx.Timeout(self._timeout),
-                )
-                elapsed_ms = (time.perf_counter() - start_time) * 1000
-                resp.raise_for_status()
-                data = resp.json()
 
-                usage = data.get("usage", {})
-                choices = data.get("choices", [])
-                text = ""
-                if choices:
-                    text = choices[0].get("message", {}).get("content", "")
-
-                prompt_tokens = usage.get("prompt_tokens", 0)
-                completion_tokens = usage.get("completion_tokens", 0)
-
-                result = LLMResponse(
-                    text=text.strip(),
-                    model_used=f"{self._remote_fallback_model} (escalated)",
-                    routed_to=RouteTarget.REMOTE.value,
-                    prompt_tokens=prompt_tokens,
-                    completion_tokens=completion_tokens,
-                    total_tokens=prompt_tokens + completion_tokens,
-                    latency_ms=round(elapsed_ms, 1),
-                )
-                self.stats.record(result)
-                return result
-            except Exception as esc_err:
-                print(f"[Bifrost Escalation] Remote escalation also failed: {esc_err}")
-                last_error = f"Local failed, remote escalation failed: {esc_err}"
 
         error_resp = LLMResponse(
             text="",
