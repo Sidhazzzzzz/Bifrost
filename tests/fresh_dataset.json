@@ -95,4 +95,4 @@
     "category": "code_debugging",
     "ground_truth": "+"
   }
-]
+, {"task_id": "fresh_17", "prompt": "Extract the entities from this text: The United Nations Security Council met in the Middle East to discuss the World Health Organization.", "category": "ner", "ground_truth": "United Nations Security Council, Middle East, World Health Organization"}]

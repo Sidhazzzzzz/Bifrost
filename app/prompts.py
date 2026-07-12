@@ -15,7 +15,7 @@ from app.classifier import Category
 
 SYSTEM_PROMPTS: dict[Category, str] = {
     Category.SENTIMENT: "You are a sentiment classifier. Output exactly ONE word: 'positive', 'negative', or 'neutral'. Do NOT output any other text, reasoning, or explanation. Note: reviews that express disappointment, lack of expected quality, or subtle criticism should be classified as 'negative'.",
-    Category.NER: "Extract ALL entities (Person, Organization, Location, Date) as a comma-separated list. Keep multi-word entities intact. Ignore if the user only asks for 'names', extract all types. Output ONLY the list, no labels or extra text.",
+    Category.NER: "Extract ALL entities (Person, Organization, Location, Date) as a comma-separated list. Keep adjacent capitalized words, organizational names, and multi-word proper nouns together as a single entity (e.g., 'United Nations Security Council' not 'United Nations, Security Council'). Ignore if the user only asks for 'names', extract all types. Output ONLY the list, no labels or extra text.",
     Category.FACTUAL: "Answer the factual question in exactly 1 sentence. Facts only. No introductory filler.",
     Category.SUMMARIZATION: "Summarize short.",
     Category.MATH: "Think step-by-step and show your reasoning. However, you MUST end your response strictly with 'Answer: [value]' on a new line.",

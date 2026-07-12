@@ -62,18 +62,9 @@ def is_weak_answer(prompt: str, response: str, category: Category) -> bool:
         except Exception:
             pass
 
-    if category == Category.FACTUAL:
-        # Without a knowledge base, we cannot locally verify factual correctness.
-        # Force escalation to remote.
-        return True
-
-    if category == Category.LOGIC:
-        # Cannot easily verify logical conclusion against premises without a solver.
-        return True
-
-    if category == Category.SUMMARIZATION:
-        # Summarization is too open-ended and cannot be strongly verified locally.
-        # Force escalation to remote.
+    if category in (Category.FACTUAL, Category.LOGIC, Category.SUMMARIZATION):
+        # Unconditionally escalate categories that require advanced reasoning,
+        # external knowledge, or open-ended evaluation to the remote tier.
         return True
 
     if category == Category.NER:
@@ -90,12 +81,23 @@ def is_weak_answer(prompt: str, response: str, category: Category) -> bool:
         entities = [e for e in entities if e]
         
         prompt_lower = prompt.lower()
+        valid_entities = []
         for e in entities:
             # Strip trailing/leading punctuation
             e_clean = e.strip(".'\"?![]{}()").lower()
             if not e_clean:
                 continue
             if e_clean not in prompt_lower:
+                return True
+            valid_entities.append(e_clean)
+            
+        # Check for over-split compound entities (e.g. "United Nations, Security Council")
+        # If two extracted entities appear adjacent in the prompt with only spaces/punctuation between them,
+        # it signals the model erroneously split a single compound entity. Escalate to remote.
+        for i in range(len(valid_entities) - 1):
+            # Regex checks if valid_entities[i] and valid_entities[i+1] are separated only by whitespace or punctuation
+            pattern = re.escape(valid_entities[i]) + r'[\s,\.\-\'\"?!\[\]\{\}\(\)]+' + re.escape(valid_entities[i+1])
+            if re.search(pattern, prompt_lower):
                 return True
         
         if not entities:
