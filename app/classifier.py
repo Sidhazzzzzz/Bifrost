@@ -63,50 +63,48 @@ _MATH_PATTERN = re.compile(
     r"|\b(?:solve|calculate|compute|evaluate|simplify|derive|integrate|differentiate)\b"
     r"|\b(?:equation|formula|expression|polynomial|matrix|vector)\b"
     r"|(?:what\s+is\s+\d+)"
-    r"|(?:how\s+(?:much|many)\s+is)"
-    r"|\b(?:square\s+root|factorial|logarithm|percentage|ratio|proportion|half|apples?)\b"
-    r"|(?:cost|total).*?(?:\$?\d+(?:\.\d+)?)"
-    r"|(?:if\s+a\s+.*?\s+leaves)"
-    r"|(?:how\s+many\s+.*?\s+are\s+in)"
-    r"|\b(?:priced\s+at|discount|probability\s+of|rate|distance|speed|joint\s+probability)\b"
-    r"|\b(?:geometry|algebra|calculus|statistics|probability|fractions)\b",
+    r"|(?:how\s+(?:much|many)\b)"
+    r"|\b(?:square\s+root|factorial|logarithm|percentage|ratio|proportion)\b"
+    r"|\b(?:probability\s+of|rate|distance|speed)\b"
+    r"|\b(?:geometry|algebra|calculus|statistics|fractions)\b"
+    r"|(?:\bif\b.*\b(?:costs?|weighs?|measures?|speed|rate)\b)"
+    r"|(?:\d+\s*(?:apples|oranges|coins|dollars|cents|meters|kg|lb|mph|km/h))",
     re.IGNORECASE,
 )
 
-_SENTIMENT_KEYWORDS = {
-    "sentiment", "feel", "feeling", "mood", "emotion", "tone",
-    "positive", "negative", "neutral", "opinion", "attitude",
-    "happy", "sad", "angry", "review",
-    "toxic", "safe", "polarity", "complaining", "praising",
-    "hostility", "aggressive", "friendly", "spam", "abusive", "offensive",
-}
+_SENTIMENT_PATTERNS = [
+    re.compile(r"\b(?:sentiment|mood|emotion|tone|polarity)\b"),
+    re.compile(r"\b(?:positive|negative|neutral)\b"),
+    re.compile(r"\b(?:complaining|praising|abusive|offensive|toxic)\b"),
+    re.compile(r"\b(?:happy|sad|angry)\b"),
+    re.compile(r"\breview\b"),
+]
 
-_NER_KEYWORDS = {
-    "extract", "entities", "ner", "named entity", "identify names",
-    "find all names", "people mentioned", "organizations mentioned",
-    "locations mentioned", "dates mentioned",
-    "key players", "companies", "places", "geographical",
-    "geopolitical", "monetary", "brands", "products",
-    "who is mentioned", "what organizations",
-}
+_NER_PATTERNS = [
+    re.compile(r"\b(?:extract|find|identify)\s+(?:entities|names|people|organizations|locations|dates|places|brands|products)\b"),
+    re.compile(r"\b(?:named entity recognition|ner)\b"),
+    re.compile(r"who\s+(?:is|are)\s+mentioned\b"),
+    re.compile(r"what\s+(?:organizations|companies|places)\s+(?:are|were)\b"),
+    re.compile(r"\b(?:names?|people|locations?|organizations?)\b.*\b(?:in the text|in this text|mentioned)\b"),
+]
 
-_SUMMARY_KEYWORDS = {
-    "summarize", "summary", "tldr", "tl;dr", "condense", "brief",
-    "key points", "main idea", "gist", "recap", "overview",
-    "long story short", "what is this about", "what is this article about", "what is this text about", "boil this down",
-    "explain this document", "one paragraph", "too long", "outline",
-    "abstract", "synopsis", "wrap up",
-}
+_SUMMARY_PATTERNS = [
+    re.compile(r"\b(?:summarize|summary|tldr|tl;dr|condense|recap|overview|synopsis|abstract)\b"),
+    re.compile(r"\b(?:key points|main idea|gist)\b"),
+    re.compile(r"\b(?:what is this about|explain this document|boil this down)\b"),
+    re.compile(r"^(?:in a few words|briefly|shortly),?"),
+]
 
-_LOGIC_KEYWORDS = {
-    "logic", "logical", "prove", "proof", "reason", "reasoning",
-    "deduce", "deduction", "infer", "inference", "syllogism",
-    "paradox", "fallacy", "premise", "conclusion", "therefore",
-    "if then", "implies", "conclude", "if all",
-    "riddle", "puzzle", "brain teaser", "who is the tallest",
-    "how do you measure", "cross a river", "brothers and sisters",
-    "who is lying",
-}
+_LOGIC_PATTERNS = [
+    re.compile(r"\b(?:logic|logical|prove|proof|reason|reasoning|deduce|deduction|infer|inference|syllogism|paradox|fallacy|premise|conclusion)\b"),
+    re.compile(r"\b(?:riddle|puzzle|brain teaser)\b"),
+    re.compile(r"\bif\b.*\bthen\b.*\b(?:must|will|does)\b"),
+    re.compile(r"\b(?:all|some|no)\b.*\bare\b.*\b(?:all|some|no)\b"),
+    re.compile(r"\b(?:therefore|implies|conclude)\b"),
+    re.compile(r"\b(?:assume|assuming)\b.*\b(?:what|who|where|how)\b"),
+    re.compile(r"\bif\b.*\b(?:did it|does it|is it|will it|do they|does that)\b.*\?"),
+    re.compile(r"\b(?:not necessarily|always true|always false)\b"),
+]
 
 _CODE_GEN_VERBS = {
     "write", "generate", "create", "implement", "build", "make", "develop",
@@ -209,19 +207,19 @@ def _detect_category(prompt: str, lower: str, word_count: int) -> Category:
         return Category.MATH
 
     # Sentiment
-    if any(re.search(rf"\b{re.escape(kw)}\b", lower) for kw in _SENTIMENT_KEYWORDS):
+    if any(p.search(lower) for p in _SENTIMENT_PATTERNS):
         return Category.SENTIMENT
 
     # NER
-    if any(re.search(rf"\b{re.escape(kw)}\b", lower) for kw in _NER_KEYWORDS):
+    if any(p.search(lower) for p in _NER_PATTERNS):
         return Category.NER
 
     # Summarization
-    if any(re.search(rf"\b{re.escape(kw)}\b", lower) for kw in _SUMMARY_KEYWORDS):
+    if any(p.search(lower) for p in _SUMMARY_PATTERNS):
         return Category.SUMMARIZATION
 
     # Logic / Reasoning
-    if any(re.search(rf"\b{re.escape(kw)}\b", lower) for kw in _LOGIC_KEYWORDS):
+    if any(p.search(lower) for p in _LOGIC_PATTERNS):
         return Category.LOGIC
 
     return Category.FACTUAL

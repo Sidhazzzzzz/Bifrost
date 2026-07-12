@@ -1,0 +1,98 @@
+[
+  {
+    "task_id": "fresh_1",
+    "prompt": "What is the capital of South Korea?",
+    "category": "factual",
+    "ground_truth": "Seoul"
+  },
+  {
+    "task_id": "fresh_2",
+    "prompt": "Who wrote the novel 1984?",
+    "category": "factual",
+    "ground_truth": "George Orwell"
+  },
+  {
+    "task_id": "fresh_3",
+    "prompt": "Calculate the value of 15 * 12.",
+    "category": "mathematical",
+    "ground_truth": "180"
+  },
+  {
+    "task_id": "fresh_4",
+    "prompt": "If x + 7 = 19, what is x?",
+    "category": "mathematical",
+    "ground_truth": "12"
+  },
+  {
+    "task_id": "fresh_5",
+    "prompt": "I really hated the food at that restaurant, it was absolutely dreadful.",
+    "category": "sentiment",
+    "ground_truth": "negative"
+  },
+  {
+    "task_id": "fresh_6",
+    "prompt": "The new movie was quite an enjoyable experience.",
+    "category": "sentiment",
+    "ground_truth": "positive"
+  },
+  {
+    "task_id": "fresh_7",
+    "prompt": "Please summarize this text: The quick brown fox jumps over the lazy dog. It was a sunny day and the fox was very energetic.",
+    "category": "summarization",
+    "ground_truth": "fox"
+  },
+  {
+    "task_id": "fresh_8",
+    "prompt": "Can you provide a TL;DR for the following article: A massive earthquake struck the coast of Japan today, triggering a tsunami warning for the entire region. Citizens are advised to seek higher ground immediately.",
+    "category": "summarization",
+    "ground_truth": "earthquake"
+  },
+  {
+    "task_id": "fresh_9",
+    "prompt": "Extract the entities from this sentence: Tim Cook announced a new product at Apple headquarters in Cupertino.",
+    "category": "ner",
+    "ground_truth": "Tim Cook, Apple, Cupertino"
+  },
+  {
+    "task_id": "fresh_10",
+    "prompt": "Find names in the text: Maria visited the Louvre in Paris last summer.",
+    "category": "ner",
+    "ground_truth": "Maria, Louvre, Paris"
+  },
+  {
+    "task_id": "fresh_11",
+    "prompt": "All cats are mammals. All mammals are animals. Are all cats animals?",
+    "category": "logical_reasoning",
+    "ground_truth": "yes"
+  },
+  {
+    "task_id": "fresh_12",
+    "prompt": "If it rains, the ground gets wet. The ground is wet. Did it rain? Answer yes, no, or not necessarily.",
+    "category": "logical_reasoning",
+    "ground_truth": "not necessarily"
+  },
+  {
+    "task_id": "fresh_13",
+    "prompt": "Write a Python function called multiply that takes two numbers and returns their product.",
+    "category": "code_generation",
+    "ground_truth": "def multiply"
+  },
+  {
+    "task_id": "fresh_14",
+    "prompt": "Create a Javascript function isEven that returns true if a number is even.",
+    "category": "code_generation",
+    "ground_truth": "isEven"
+  },
+  {
+    "task_id": "fresh_15",
+    "prompt": "Why is this code throwing an error? def print_list(lst): for i in lst print(i)",
+    "category": "code_debugging",
+    "ground_truth": ":"
+  },
+  {
+    "task_id": "fresh_16",
+    "prompt": "Fix the bug in this code: const add = (a, b) => a - b;",
+    "category": "code_debugging",
+    "ground_truth": "+"
+  }
+]

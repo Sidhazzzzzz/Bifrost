@@ -15,11 +15,11 @@ from app.classifier import Category
 
 SYSTEM_PROMPTS: dict[Category, str] = {
     Category.SENTIMENT: "Sentiment: Positive, Negative, Neutral. 1 word.",
-    Category.NER: "Extract entities (Person, Org, Loc, Date) as CSV. No text.",
+    Category.NER: "Extract ALL entities (Person, Organization, Location, Date) as a comma-separated list. Ignore if the user only asks for 'names', extract all types. No labels or extra text.",
     Category.FACTUAL: "Answer in 1 sentence. Facts only.",
     Category.SUMMARIZATION: "Summarize short.",
     Category.MATH: "Solve step-by-step. End with 'Answer: [value]'.",
-    Category.LOGIC: "Step-by-step logic. End with 'Conclusion: yes' or 'Conclusion: no'.",
+    Category.LOGIC: "Step-by-step logic. End with 'Conclusion: [yes, no, or not necessarily]'.",
     Category.CODE_DEBUG: "Fix code. Code only.",
     Category.CODE_GEN: "Output ONLY raw code. NO markdown formatting. NO backticks. NO explanations.",
     Category.UNKNOWN: "Answer short.",
