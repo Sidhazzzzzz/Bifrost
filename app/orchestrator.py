@@ -84,6 +84,10 @@ class Orchestrator:
             except ValueError:
                 pass
                 
+        # Skip wasted local call for categories that always escalate
+        if classification.category in {Category.FACTUAL, Category.LOGIC, Category.SUMMARIZATION}:
+            target = RouteTarget.REMOTE
+                
         log_routing_decision(
             prompt=prompt,
             category=classification.category.value,
