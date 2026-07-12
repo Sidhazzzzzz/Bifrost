@@ -109,6 +109,10 @@ class LLMClient:
             timeout=httpx.Timeout(timeout),
         )
 
+        # Split concurrency semaphores
+        self._local_sem = asyncio.Semaphore(2)
+        self._remote_sem = asyncio.Semaphore(15)
+
     async def chat(
         self,
         messages: list[dict[str, str]],
@@ -127,71 +131,73 @@ class LLMClient:
         }
 
         client = self._local_client if target == RouteTarget.LOCAL else self._remote_client
+        sem = self._local_sem if target == RouteTarget.LOCAL else self._remote_sem
         timeout_to_use = httpx.Timeout(45.0) if target == RouteTarget.LOCAL else httpx.Timeout(self._timeout)
         retries_to_use = 0 if target == RouteTarget.LOCAL else self._max_retries
         
         last_error: str | None = None
-        for attempt in range(retries_to_use + 1):
-            start_time = time.perf_counter()
-            try:
-                resp = await client.post(
-                    "/chat/completions",
-                    json=payload,
-                    timeout=timeout_to_use,
-                )
-                elapsed_ms = (time.perf_counter() - start_time) * 1000
+        async with sem:
+            for attempt in range(retries_to_use + 1):
+                start_time = time.perf_counter()
+                try:
+                    resp = await client.post(
+                        "/chat/completions",
+                        json=payload,
+                        timeout=timeout_to_use,
+                    )
+                    elapsed_ms = (time.perf_counter() - start_time) * 1000
 
-                if resp.status_code == 429:
-                    wait = min(2 ** attempt, 8)
-                    await asyncio.sleep(wait)
-                    last_error = "Rate limited"
-                    continue
+                    if resp.status_code == 429:
+                        wait = min(2 ** attempt, 8)
+                        await asyncio.sleep(wait)
+                        last_error = "Rate limited"
+                        continue
 
-                resp.raise_for_status()
-                data = resp.json()
+                    resp.raise_for_status()
+                    data = resp.json()
 
-                usage = data.get("usage", {})
-                choices = data.get("choices", [])
-                text = ""
-                if choices:
-                    text = choices[0].get("message", {}).get("content", "")
+                    usage = data.get("usage", {})
+                    choices = data.get("choices", [])
+                    text = ""
+                    if choices:
+                        text = choices[0].get("message", {}).get("content", "")
 
-                # local models might not return exact tokens in usage, estimate if empty
-                prompt_tokens = usage.get("prompt_tokens", 0)
-                completion_tokens = usage.get("completion_tokens", 0)
-                if prompt_tokens == 0 and text:
-                    # Rough token estimation
-                    prompt_tokens = len(str(messages).split()) // 3
-                    completion_tokens = len(text.split()) // 3
+                    # local models might not return exact tokens in usage, estimate if empty
+                    prompt_tokens = usage.get("prompt_tokens", 0)
+                    completion_tokens = usage.get("completion_tokens", 0)
+                    if prompt_tokens == 0 and text:
+                        # Rough token estimation
+                        prompt_tokens = len(str(messages).split()) // 3
+                        completion_tokens = len(text.split()) // 3
 
-                result = LLMResponse(
-                    text=text.strip(),
-                    model_used=model,
-                    routed_to=target.value,
-                    prompt_tokens=prompt_tokens,
-                    completion_tokens=completion_tokens,
-                    total_tokens=prompt_tokens + completion_tokens,
-                    latency_ms=round(elapsed_ms, 1),
-                )
-                self.stats.record(result)
-                return result
+                    result = LLMResponse(
+                        text=text.strip(),
+                        model_used=model,
+                        routed_to=target.value,
+                        prompt_tokens=prompt_tokens,
+                        completion_tokens=completion_tokens,
+                        total_tokens=prompt_tokens + completion_tokens,
+                        latency_ms=round(elapsed_ms, 1),
+                    )
+                    self.stats.record(result)
+                    return result
 
-            except httpx.TimeoutException:
-                elapsed_ms = (time.perf_counter() - start_time) * 1000
-                last_error = f"Timeout after {elapsed_ms:.0f}ms"
-                if attempt < self._max_retries:
-                    await asyncio.sleep(1)
+                except httpx.TimeoutException:
+                    elapsed_ms = (time.perf_counter() - start_time) * 1000
+                    last_error = f"Timeout after {elapsed_ms:.0f}ms"
+                    if attempt < self._max_retries:
+                        await asyncio.sleep(1)
 
-            except httpx.HTTPStatusError as exc:
-                elapsed_ms = (time.perf_counter() - start_time) * 1000
-                last_error = f"HTTP {exc.response.status_code}: {exc.response.text[:200]}"
-                if attempt < self._max_retries:
-                    await asyncio.sleep(1)
+                except httpx.HTTPStatusError as exc:
+                    elapsed_ms = (time.perf_counter() - start_time) * 1000
+                    last_error = f"HTTP {exc.response.status_code}: {exc.response.text[:200]}"
+                    if attempt < self._max_retries:
+                        await asyncio.sleep(1)
 
-            except Exception as exc:
-                elapsed_ms = (time.perf_counter() - start_time) * 1000
-                last_error = f"{type(exc).__name__}: {str(exc)[:200]}"
-                break
+                except Exception as exc:
+                    elapsed_ms = (time.perf_counter() - start_time) * 1000
+                    last_error = f"{type(exc).__name__}: {str(exc)[:200]}"
+                    break
 
 
 
@@ -215,25 +221,28 @@ class LLMClient:
         # For local, default to mxbai-embed-large or all-minilm if model not specified.
         # Here we just use the same local model, or ollama's default.
         client = self._local_client if target == RouteTarget.LOCAL else self._remote_client
+        sem = self._local_sem if target == RouteTarget.LOCAL else self._remote_sem
         payload = {
             "model": model or (self._remote_fallback_model if target == RouteTarget.REMOTE else "nomic-embed-text"),
             "input": text,
         }
-        try:
-            resp = await client.post(
-                "/embeddings",
-                json=payload,
-                timeout=httpx.Timeout(10.0),
-            )
-            resp.raise_for_status()
-            data = resp.json()
-            if "data" in data and len(data["data"]) > 0:
-                return data["data"][0].get("embedding", [])
-            # Some local ollama endpoints might return 'embedding' directly if using /api/embeddings
-            if "embedding" in data:
-                return data["embedding"]
-        except Exception as e:
-            print(f"[Bifrost] Embedding fetch failed: {e}")
+        
+        async with sem:
+            try:
+                resp = await client.post(
+                    "/embeddings",
+                    json=payload,
+                    timeout=httpx.Timeout(10.0),
+                )
+                resp.raise_for_status()
+                data = resp.json()
+                if "data" in data and len(data["data"]) > 0:
+                    return data["data"][0].get("embedding", [])
+                # Some local ollama endpoints might return 'embedding' directly if using /api/embeddings
+                if "embedding" in data:
+                    return data["embedding"]
+            except Exception as e:
+                print(f"[Bifrost] Embedding fetch failed: {e}")
         return []
 
     async def close(self) -> None:

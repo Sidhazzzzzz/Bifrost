@@ -108,25 +108,23 @@ class BatchReport:
 async def process_single_task(
     task: dict[str, Any],
     orchestrator: Orchestrator,
-    semaphore: asyncio.Semaphore,
 ) -> TaskResult:
     """Classify, route, and execute a single task."""
     task_id = task.get("task_id", "unknown")
     prompt = task.get("prompt", task.get("input", task.get("query", "")))
     category_hint = task.get("category", None)
 
-    async with semaphore:
-        try:
-            res = await orchestrator.execute_task(task_id, prompt, category_hint=category_hint)
-        except Exception as e:
-            res = {
-                "response": str(e),
-                "model_used": "none",
-                "category": "unknown",
-                "routed_to": "LOCAL",
-                "complexity_score": 0.0,
-                "error": str(e)
-            }
+    try:
+        res = await orchestrator.execute_task(task_id, prompt, category_hint=category_hint)
+    except Exception as e:
+        res = {
+            "response": str(e),
+            "model_used": "none",
+            "category": "unknown",
+            "routed_to": "LOCAL",
+            "complexity_score": 0.0,
+            "error": str(e)
+        }
 
     return TaskResult(
         task_id=task_id,
@@ -199,7 +197,6 @@ async def run_batch(settings: Settings) -> BatchReport:
     orchestrator = Orchestrator(settings, client, router, cache)
 
     # --- Process tasks concurrently ---
-    semaphore = asyncio.Semaphore(4)
 
     try:
         unique_tasks: list[dict[str, Any]] = []
@@ -219,7 +216,7 @@ async def run_batch(settings: Settings) -> BatchReport:
             print(f"[Bifrost] Deduplicated {saved} repeated task(s) before inference")
 
         task_coroutines = [
-            process_single_task(task, orchestrator, semaphore)
+            process_single_task(task, orchestrator)
             for task in unique_tasks
         ]
         unique_results = await asyncio.gather(*task_coroutines, return_exceptions=True)
