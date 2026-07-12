@@ -52,6 +52,8 @@ class ModelRouter:
             Category.CODE_DEBUG,
             Category.CODE_GEN,
             Category.LOGIC,
+            Category.FACTUAL,
+            Category.SUMMARIZATION,
         }
         if high_risk:
             return self.remote_models[-1]
