@@ -141,20 +141,62 @@ class Orchestrator:
             classification.complexity_score,
         )
         messages = build_messages(prompt, classification.category, classification.complexity_score)
-        max_tokens = MAX_TOKENS_HINT.get(classification.category, 300)
-        
-        # Ensure we have enough tokens if we appended CoT
-        if classification.category in {Category.FACTUAL, Category.LOGIC}:
-            max_tokens = max(max_tokens, 500)
 
-        llm_resp = await self.client.chat(
-            messages=messages,
-            target=target,
-            model=model_id,
-            max_tokens=max_tokens,
-            temperature=0.1,
-        )
-        print(f"[Timing] Task {task_id} | {classification.category.value} | Initial {target.value} call took {llm_resp.latency_ms}ms")
+        if classification.category == Category.LOGIC and target == RouteTarget.REMOTE:
+            # Self-consistency for LOGIC only (parallel calls)
+            resp1, resp2 = await asyncio.gather(
+                self.client.chat(
+                    messages=messages,
+                    target=target,
+                    model=model_id,
+                    max_tokens=max_tokens,
+                    temperature=0.7,
+                ),
+                self.client.chat(
+                    messages=messages,
+                    target=target,
+                    model=model_id,
+                    max_tokens=max_tokens,
+                    temperature=0.7,
+                )
+            )
+            print(f"[Timing] Task {task_id} | {classification.category.value} | Parallel REMOTE calls took {max(resp1.latency_ms, resp2.latency_ms)}ms")
+            
+            def extract_logic_conclusion(text: str) -> str:
+                # E.g., "Conclusion: yes"
+                lines = text.strip().split("\n")
+                for line in reversed(lines):
+                    if line.lower().startswith("conclusion:"):
+                        return line.split(":", 1)[1].strip().lower()
+                return ""
+            
+            c1 = extract_logic_conclusion(resp1.text)
+            c2 = extract_logic_conclusion(resp2.text)
+            
+            if c1 and c2 and c1 == c2:
+                llm_resp = resp1
+            elif c1 and c2 and c1 != c2:
+                # Disagreement, tie-break call
+                print(f"[Timing] Task {task_id} | {classification.category.value} | Tie-break REMOTE call started...")
+                llm_resp = await self.client.chat(
+                    messages=messages,
+                    target=target,
+                    model=model_id,
+                    max_tokens=max_tokens,
+                    temperature=0.1,
+                )
+            else:
+                # Fallback to first if unable to parse cleanly
+                llm_resp = resp1
+        else:
+            llm_resp = await self.client.chat(
+                messages=messages,
+                target=target,
+                model=model_id,
+                max_tokens=max_tokens,
+                temperature=0.1,
+            )
+            print(f"[Timing] Task {task_id} | {classification.category.value} | Initial {target.value} call took {llm_resp.latency_ms}ms")
 
         is_good = True
         local_failed = False
@@ -163,6 +205,10 @@ class Orchestrator:
                 local_failed = True
                 is_good = False
             else:
+                if classification.category == Category.NER:
+                    from app.quality import fix_ner_response
+                    llm_resp.text = fix_ner_response(prompt, llm_resp.text)
+                
                 # Verify Answer
                 is_good = not is_weak_answer(
                     prompt, 

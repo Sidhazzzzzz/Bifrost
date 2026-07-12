@@ -63,11 +63,9 @@ _MATH_PATTERN = re.compile(
     r"|\b(?:solve|calculate|compute|evaluate|simplify|derive|integrate|differentiate)\b"
     r"|\b(?:equation|formula|expression|polynomial|matrix|vector)\b"
     r"|(?:what\s+is\s+\d+)"
-    r"|(?:how\s+(?:much|many)\b)"
     r"|\b(?:square\s+root|factorial|logarithm|percentage|ratio|proportion)\b"
-    r"|\b(?:probability\s+of|rate|distance|speed)\b"
     r"|\b(?:geometry|algebra|calculus|statistics|fractions|volume|area|perimeter|radius|diameter)\b"
-    r"|(?:\bif\b.*\b(?:costs?|weighs?|measures?|speed|rate)\b)"
+    r"|(?:\bif\b.*\b(?:costs?|weighs?|measures?)\b)"
     r"|(?:\d+\s*(?:apples|oranges|coins|dollars|cents|meters|kg|lb|mph|km/h))",
     re.IGNORECASE,
 )

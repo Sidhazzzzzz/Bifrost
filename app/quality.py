@@ -13,6 +13,30 @@ from typing import Any
 from app.classifier import Category, RouteTarget
 from app.zero_token import _extract_arithmetic_expression, _safe_eval, _solve_linear_equation
 
+def fix_ner_response(prompt: str, response: str) -> str:
+    if ":" in response:
+        _, response = response.split(":", 1)
+        
+    entities = [e.strip() for e in response.split(",") if e.strip()]
+    if len(entities) < 2:
+        return response
+        
+    prompt_lower = prompt.lower()
+    
+    merged = []
+    curr = entities[0]
+    
+    for nxt in entities[1:]:
+        combined = f"{curr} {nxt}"
+        if combined.lower() in prompt_lower:
+            curr = combined
+        else:
+            merged.append(curr)
+            curr = nxt
+    merged.append(curr)
+    
+    return ", ".join(merged)
+
 _WEAK_PHRASES = (
     "i don't know",
     "i do not know",
@@ -32,7 +56,7 @@ def is_weak_answer(prompt: str, response: str, category: Category) -> bool:
     lower = text.lower()
     
     # 1. Fast heuristics for absolute failures (empty, generic, etc)
-    if not text or len(text.split()) < 2:
+    if not text or (category != Category.SENTIMENT and len(text.split()) < 2):
         return True
     if any(phrase in lower for phrase in _WEAK_PHRASES):
         return True
@@ -107,6 +131,23 @@ def is_weak_answer(prompt: str, response: str, category: Category) -> bool:
             code = code_blocks[0]
             try:
                 ast.parse(code)
+                # Attempt to execute snippet
+                import subprocess
+                try:
+                    res = subprocess.run(
+                        ["python", "-c", code],
+                        capture_output=True,
+                        timeout=1.0
+                    )
+                    if res.returncode != 0:
+                        # Only fail if it's not a clear input EOF error
+                        err = res.stderr.decode('utf-8', errors='ignore')
+                        if "EOFError" not in err and "ModuleNotFoundError" not in err:
+                            return True
+                except subprocess.TimeoutExpired:
+                    pass
+                except Exception:
+                    pass
             except SyntaxError:
                 if "```python" in text.lower():
                     return True

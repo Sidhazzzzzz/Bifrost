@@ -185,7 +185,7 @@ async def run_batch(settings: Settings) -> BatchReport:
         remote_base_url=settings.remote_base_url,
         remote_api_key=settings.remote_api_key,
         remote_fallback_model=settings.remote_model,
-        timeout=30.0,
+        timeout=60.0,
     )
 
     cache = PersistentResponseCache(
