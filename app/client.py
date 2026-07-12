@@ -79,7 +79,7 @@ class LLMClient:
         remote_base_url: str,
         remote_api_key: str,
         remote_fallback_model: str,
-        timeout: float = 30.0,
+        timeout: float = 60.0,
         max_retries: int = 2,
     ) -> None:
         self._local_base_url = local_base_url.rstrip("/")

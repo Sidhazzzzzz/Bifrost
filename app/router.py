@@ -48,16 +48,8 @@ class ModelRouter:
         if not self.remote_models:
             return self.remote_model
 
-        high_risk = category in {
-            Category.CODE_DEBUG,
-            Category.CODE_GEN,
-            Category.LOGIC,
-            Category.FACTUAL,
-            Category.SUMMARIZATION,
-        }
-        if high_risk:
-            return self.remote_models[-1]
-        return self.remote_models[0]
+        # Return the most powerful model to guarantee accuracy per user request
+        return self.remote_models[-1]
 
     def get_tier_summary(self) -> dict[str, str]:
         return {

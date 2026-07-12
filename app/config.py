@@ -59,9 +59,19 @@ def load_settings() -> Settings:
     s.fireworks_api_key = os.getenv("FIREWORKS_API_KEY", "")
 
     allowed_models_raw = os.getenv("ALLOWED_MODELS", "")
-    s.allowed_models = tuple(
-        model.strip() for model in allowed_models_raw.split(",") if model.strip()
-    )
+    raw_models = [m.strip() for m in allowed_models_raw.split(",") if m.strip()]
+    
+    if s.fireworks_api_key or os.getenv("FIREWORKS_BASE_URL") or raw_models:
+        # If we are using fireworks, ensure proper prefix to prevent 404s/timeouts
+        sanitized = []
+        for m in raw_models:
+            if not m.startswith("accounts/fireworks/models/"):
+                sanitized.append(f"accounts/fireworks/models/{m}")
+            else:
+                sanitized.append(m)
+        s.allowed_models = tuple(sanitized)
+    else:
+        s.allowed_models = tuple(raw_models)
     
     # Inside Docker, we must bridge to host.docker.internal unless OLLAMA_URL is set
     # Check if we are running in a container
@@ -81,18 +91,21 @@ def load_settings() -> Settings:
             "https://api.fireworks.ai/inference/v1",
         )
         s.remote_api_key = s.fireworks_api_key
-        s.remote_model = os.getenv(
-            "REMOTE_MODEL",
+        env_remote = os.getenv("REMOTE_MODEL")
+        if env_remote and not env_remote.startswith("accounts/fireworks/models/"):
+            env_remote = f"accounts/fireworks/models/{env_remote}"
+            
+        s.remote_model = env_remote or (
             _smallest_model(s.allowed_models)
             if s.allowed_models
-            else "accounts/fireworks/models/llama-v3p1-8b-instruct",
+            else "accounts/fireworks/models/llama-v3p1-8b-instruct"
         )
         print(f"[Bifrost] REMOTE configured via Fireworks AI (Model: {s.remote_model})")
     else:
         s.remote_provider = "groq"
         s.remote_base_url = "https://api.groq.com/openai/v1"
         s.remote_api_key = s.groq_api_key
-        s.remote_model = os.getenv("REMOTE_MODEL", "llama-3.1-8b-instant")
+        s.remote_model = os.getenv("REMOTE_MODEL", "llama-3.3-70b-versatile")
         print(f"[Bifrost] WARNING: FIREWORKS_API_KEY/ALLOWED_MODELS missing. Falling back to Groq for REMOTE.")
     
     s.host = os.getenv("HOST", "0.0.0.0")

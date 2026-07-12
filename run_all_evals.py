@@ -49,6 +49,8 @@ async def main():
             
             if all_found:
                 correct += 1
+            else:
+                print(f"FAILED [{ds_name} - {task['category']}]: Expected '{expected.encode('ascii', 'replace').decode()}', Got: '{got.encode('ascii', 'replace').decode()}'")
                 
         results[ds_name] = {'correct': correct, 'total': len(tasks), 'tokens': total_tokens}
     

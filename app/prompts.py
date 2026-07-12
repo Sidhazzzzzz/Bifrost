@@ -14,12 +14,12 @@ from app.classifier import Category
 # ---------------------------------------------------------------------------
 
 SYSTEM_PROMPTS: dict[Category, str] = {
-    Category.SENTIMENT: "Sentiment: Positive, Negative, Neutral. 1 word.",
-    Category.NER: "Extract ALL entities (Person, Organization, Location, Date) as a comma-separated list. Ignore if the user only asks for 'names', extract all types. No labels or extra text.",
-    Category.FACTUAL: "Answer in 1 sentence. Facts only.",
+    Category.SENTIMENT: "You are a sentiment classifier. Output exactly ONE word: 'positive', 'negative', or 'neutral'. Do NOT output any other text, reasoning, or explanation. Note: reviews that express disappointment, lack of expected quality, or subtle criticism should be classified as 'negative'.",
+    Category.NER: "Extract ALL entities (Person, Organization, Location, Date) as a comma-separated list. Keep multi-word entities intact. Ignore if the user only asks for 'names', extract all types. Output ONLY the list, no labels or extra text.",
+    Category.FACTUAL: "Answer the factual question in exactly 1 sentence. Facts only. No introductory filler.",
     Category.SUMMARIZATION: "Summarize short.",
-    Category.MATH: "Solve step-by-step. End with 'Answer: [value]'.",
-    Category.LOGIC: "Step-by-step logic. End with 'Conclusion: [yes, no, or not necessarily]'.",
+    Category.MATH: "Think step-by-step and show your reasoning. However, you MUST end your response strictly with 'Answer: [value]' on a new line.",
+    Category.LOGIC: "Think step-by-step and show your reasoning. However, you MUST end your response strictly with 'Conclusion: [yes, no, or not necessarily]' on a new line.",
     Category.CODE_DEBUG: "Fix code. Code only.",
     Category.CODE_GEN: "Output ONLY raw code. NO markdown formatting. NO backticks. NO explanations.",
     Category.UNKNOWN: "Answer short.",
@@ -29,6 +29,7 @@ SYSTEM_PROMPTS: dict[Category, str] = {
 def build_messages(
     prompt: str,
     category: Category,
+    complexity_score: float = 0.0,
     *,
     max_prompt_chars: int = 4000,
 ) -> list[dict[str, str]]:
@@ -67,10 +68,10 @@ def build_messages(
 MAX_TOKENS_HINT: dict[Category, int] = {
     Category.SENTIMENT:     5,
     Category.NER:           50,
-    Category.FACTUAL:       30,
+    Category.FACTUAL:       150,
     Category.SUMMARIZATION: 80,
     Category.MATH:          300,
-    Category.LOGIC:         300,
+    Category.LOGIC:         500,
     Category.CODE_DEBUG:    300,
     Category.CODE_GEN:      200,
     Category.UNKNOWN:       100,

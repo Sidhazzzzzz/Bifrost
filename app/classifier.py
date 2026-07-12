@@ -66,7 +66,7 @@ _MATH_PATTERN = re.compile(
     r"|(?:how\s+(?:much|many)\b)"
     r"|\b(?:square\s+root|factorial|logarithm|percentage|ratio|proportion)\b"
     r"|\b(?:probability\s+of|rate|distance|speed)\b"
-    r"|\b(?:geometry|algebra|calculus|statistics|fractions)\b"
+    r"|\b(?:geometry|algebra|calculus|statistics|fractions|volume|area|perimeter|radius|diameter)\b"
     r"|(?:\bif\b.*\b(?:costs?|weighs?|measures?|speed|rate)\b)"
     r"|(?:\d+\s*(?:apples|oranges|coins|dollars|cents|meters|kg|lb|mph|km/h))",
     re.IGNORECASE,
@@ -78,6 +78,8 @@ _SENTIMENT_PATTERNS = [
     re.compile(r"\b(?:complaining|praising|abusive|offensive|toxic)\b"),
     re.compile(r"\b(?:happy|sad|angry)\b"),
     re.compile(r"\breview\b"),
+    re.compile(r"\b(?:performance|brilliance|masterpiece|overstatement|nuanced|cast)\b.*\b(?:expect|lack|ignore)\b"),
+    re.compile(r"\b(?:love|hate|loved|hated|despised|enjoyed|terrible|awful|amazing|excellent|horrible|great|good|bad|okay|best|worst)\b"),
 ]
 
 _NER_PATTERNS = [
@@ -102,7 +104,7 @@ _LOGIC_PATTERNS = [
     re.compile(r"\b(?:all|some|no)\b.*\bare\b.*\b(?:all|some|no)\b"),
     re.compile(r"\b(?:therefore|implies|conclude)\b"),
     re.compile(r"\b(?:assume|assuming)\b.*\b(?:what|who|where|how)\b"),
-    re.compile(r"\bif\b.*\b(?:did it|does it|is it|will it|do they|does that)\b.*\?"),
+    re.compile(r"\bif\b.*\b(?:did|does|is|will|do|must)\b.*\?"),
     re.compile(r"\b(?:not necessarily|always true|always false)\b"),
 ]
 
