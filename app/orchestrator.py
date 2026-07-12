@@ -34,6 +34,7 @@ class Orchestrator:
 
     async def execute_task(
         self,
+        task_id: str,
         prompt: str,
         category_hint: str | None = None,
         force_target: str | None = None,
@@ -123,6 +124,10 @@ class Orchestrator:
                 return response
 
         # 5. Remote / Local Execution
+        # Skip the wasted local call for categories that always escalate
+        if classification.category in {Category.FACTUAL, Category.LOGIC}:
+            target = RouteTarget.REMOTE
+            
         model_id = self.router.select_model(
             target,
             classification.category,
@@ -138,6 +143,7 @@ class Orchestrator:
             max_tokens=max_tokens,
             temperature=0.1,
         )
+        print(f"[Timing] Task {task_id} | {classification.category.value} | Initial {target.value} call took {llm_resp.latency_ms}ms")
 
         is_good = True
         if (
@@ -160,6 +166,7 @@ class Orchestrator:
                     classification.category,
                     classification.complexity_score,
                 )
+                print(f"[Timing] Task {task_id} | {classification.category.value} | Local weak/failed, escalating to REMOTE...")
                 # Escalate
                 llm_resp = await self.client.chat(
                     messages=messages,
@@ -168,6 +175,7 @@ class Orchestrator:
                     max_tokens=max_tokens,
                     temperature=0.1,
                 )
+                print(f"[Timing] Task {task_id} | {classification.category.value} | Escalated REMOTE call took {llm_resp.latency_ms}ms")
 
         if not llm_resp.error and (is_good or llm_resp.routed_to == RouteTarget.REMOTE.value):
             self.router.record_task(classification.category, success=True, latency_ms=llm_resp.latency_ms, total_tokens=llm_resp.total_tokens)
@@ -176,6 +184,9 @@ class Orchestrator:
 
         actual_tier = llm_resp.routed_to
         was_escalated = (target.value != actual_tier)
+        
+        total_latency = (time.perf_counter() - start_time) * 1000
+        print(f"[Timing] Task {task_id} | {classification.category.value} | Total processing time: {total_latency:.1f}ms")
 
         response = {
             "response": llm_resp.text if not llm_resp.error else f"Error: {llm_resp.error}",
@@ -206,7 +217,7 @@ class Orchestrator:
             )
 
         log_task_completion(
-            task_id="orch",  # or pass down task_id
+            task_id=task_id,
             latency_ms=response["latency_ms"],
             target=actual_tier,
             tokens=response["total_tokens"],

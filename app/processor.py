@@ -117,7 +117,7 @@ async def process_single_task(
 
     async with semaphore:
         try:
-            res = await orchestrator.execute_task(prompt, category_hint=category_hint)
+            res = await orchestrator.execute_task(task_id, prompt, category_hint=category_hint)
         except Exception as e:
             res = {
                 "response": str(e),

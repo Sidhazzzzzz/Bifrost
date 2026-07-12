@@ -1,0 +1,32 @@
+[
+    {
+        "task_id": "vh1",
+        "category": "mathematical",
+        "prompt": "If a cylinder has a radius of 3 and a height of 10, what is its volume in terms of pi?",
+        "ground_truth": "90"
+    },
+    {
+        "task_id": "vh2",
+        "category": "factual",
+        "prompt": "What was the name of the first artificial Earth satellite?",
+        "ground_truth": "sputnik"
+    },
+    {
+        "task_id": "vh3",
+        "category": "sentiment",
+        "prompt": "To say it was a masterpiece would be an overstatement of the century, yet dismissing it entirely would ignore the profound subtlety of its final act.",
+        "ground_truth": "neutral"
+    },
+    {
+        "task_id": "vh4",
+        "category": "logical_reasoning",
+        "prompt": "If there are more trees in the world than there are leaves on any single tree, and every tree has at least one leaf, must there be two trees with the exact same number of leaves?",
+        "ground_truth": "yes"
+    },
+    {
+        "task_id": "vh5",
+        "category": "ner",
+        "prompt": "Extract names: The UN Security Council resolution 242 was adopted on Nov 22, 1967, following the Six-Day War in the Middle East.",
+        "ground_truth": "un security council, middle east"
+    }
+]

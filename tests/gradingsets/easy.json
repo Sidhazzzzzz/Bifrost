@@ -1,0 +1,32 @@
+[
+    {
+        "task_id": "e1",
+        "category": "mathematical",
+        "prompt": "What is 15 * 3?",
+        "ground_truth": "45"
+    },
+    {
+        "task_id": "e2",
+        "category": "factual",
+        "prompt": "What is the capital of France?",
+        "ground_truth": "paris"
+    },
+    {
+        "task_id": "e3",
+        "category": "sentiment",
+        "prompt": "The food was okay, but the service was great.",
+        "ground_truth": "positive"
+    },
+    {
+        "task_id": "e4",
+        "category": "logical_reasoning",
+        "prompt": "All dogs are animals. A golden retriever is a dog. Is it an animal?",
+        "ground_truth": "yes"
+    },
+    {
+        "task_id": "e5",
+        "category": "ner",
+        "prompt": "Extract names: Tim Cook is the CEO of Apple.",
+        "ground_truth": "tim cook, apple"
+    }
+]

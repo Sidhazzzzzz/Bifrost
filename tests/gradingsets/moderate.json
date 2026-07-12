@@ -1,0 +1,32 @@
+[
+    {
+        "task_id": "m1",
+        "category": "mathematical",
+        "prompt": "What is (120 / 4) + (15 * 2)?",
+        "ground_truth": "60"
+    },
+    {
+        "task_id": "m2",
+        "category": "factual",
+        "prompt": "Who painted the Mona Lisa?",
+        "ground_truth": "leonardo da vinci"
+    },
+    {
+        "task_id": "m3",
+        "category": "sentiment",
+        "prompt": "I did not hate it, but I would not recommend it.",
+        "ground_truth": "negative"
+    },
+    {
+        "task_id": "m4",
+        "category": "logical_reasoning",
+        "prompt": "If it rains, the grass is wet. The grass is not wet. Did it rain?",
+        "ground_truth": "no"
+    },
+    {
+        "task_id": "m5",
+        "category": "ner",
+        "prompt": "Extract names: Next Friday, Sarah will fly to London to visit the British Museum.",
+        "ground_truth": "sarah, london, british museum"
+    }
+]

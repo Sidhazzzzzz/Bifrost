@@ -127,7 +127,7 @@ class LLMClient:
         }
 
         client = self._local_client if target == RouteTarget.LOCAL else self._remote_client
-        timeout_to_use = httpx.Timeout(300.0) if target == RouteTarget.LOCAL else httpx.Timeout(self._timeout)
+        timeout_to_use = httpx.Timeout(45.0) if target == RouteTarget.LOCAL else httpx.Timeout(self._timeout)
         retries_to_use = 0 if target == RouteTarget.LOCAL else self._max_retries
         
         last_error: str | None = None

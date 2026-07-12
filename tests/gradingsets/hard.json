@@ -1,0 +1,32 @@
+[
+    {
+        "task_id": "h1",
+        "category": "mathematical",
+        "prompt": "What is 15 percent of 340?",
+        "ground_truth": "51"
+    },
+    {
+        "task_id": "h2",
+        "category": "factual",
+        "prompt": "What is the heaviest naturally occurring element?",
+        "ground_truth": "uranium"
+    },
+    {
+        "task_id": "h3",
+        "category": "sentiment",
+        "prompt": "It is not that I despised the performance, but rather that it lacked the nuanced brilliance one would expect from such an acclaimed cast.",
+        "ground_truth": "negative"
+    },
+    {
+        "task_id": "h4",
+        "category": "logical_reasoning",
+        "prompt": "Some A are B. All B are C. Are some A definitely C?",
+        "ground_truth": "yes"
+    },
+    {
+        "task_id": "h5",
+        "category": "ner",
+        "prompt": "Extract names: At the upcoming COP28 in Dubai, Prime Minister Sunak will discuss climate policy.",
+        "ground_truth": "cop28, dubai, sunak"
+    }
+]

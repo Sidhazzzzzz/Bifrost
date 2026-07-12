@@ -1,0 +1,74 @@
+[
+    {
+        "task_id": "hard_1",
+        "category": "factual",
+        "prompt": "Which element has the atomic number 79?",
+        "ground_truth": "gold"
+    },
+    {
+        "task_id": "hard_2",
+        "category": "factual",
+        "prompt": "Who was the second president of the United States?",
+        "ground_truth": "john adams"
+    },
+    {
+        "task_id": "hard_3",
+        "category": "mathematical",
+        "prompt": "If a train travels 60 mph for 2.5 hours, how many miles does it travel in total?",
+        "ground_truth": "150"
+    },
+    {
+        "task_id": "hard_4",
+        "category": "mathematical",
+        "prompt": "What is the square root of 144 plus 13?",
+        "ground_truth": "25"
+    },
+    {
+        "task_id": "hard_5",
+        "category": "sentiment",
+        "prompt": "The cinematography was stunning, but the plot was so abysmal and meandering that I left the theater feeling completely cheated.",
+        "ground_truth": "negative"
+    },
+    {
+        "task_id": "hard_6",
+        "category": "sentiment",
+        "prompt": "Despite the long wait times and slightly cold soup, the waiter's incredible charm and the surprisingly cheap bill made it an okay experience.",
+        "ground_truth": "neutral"
+    },
+    {
+        "task_id": "hard_7",
+        "category": "summarization",
+        "prompt": "Quantum computing is a rapidly-emerging technology that harnesses the laws of quantum mechanics to solve problems too complex for classical computers. Today, IBM Quantum makes real quantum hardware a tool scientists, researchers, and developers can use to solve problems across industries. Please provide a brief synopsis of this paragraph.",
+        "ground_truth": "quantum"
+    },
+    {
+        "task_id": "hard_8",
+        "category": "ner",
+        "prompt": "Find all the entities mentioned: Next week, Dr. Emily Chen will travel to Kyoto, Japan to present her research on behalf of the World Health Organization.",
+        "ground_truth": "emily chen, kyoto, japan, world health organization"
+    },
+    {
+        "task_id": "hard_9",
+        "category": "logical_reasoning",
+        "prompt": "If some bloops are razzies and all razzies are lazzies, are some bloops necessarily lazzies?",
+        "ground_truth": "yes"
+    },
+    {
+        "task_id": "hard_10",
+        "category": "logical_reasoning",
+        "prompt": "There are three boxes. One contains apples, one contains oranges, and one contains both. All boxes are labeled incorrectly. You open one box labeled 'apples and oranges' and pick out an apple. What is actually in the box labeled 'apples'?",
+        "ground_truth": "oranges"
+    },
+    {
+        "task_id": "hard_11",
+        "category": "code_generation",
+        "prompt": "Write a Python script that takes a list of integers and returns a new list containing only the prime numbers. Use list comprehension if possible.",
+        "ground_truth": "def"
+    },
+    {
+        "task_id": "hard_12",
+        "category": "code_debugging",
+        "prompt": "Why does this fail? def divide(a, b): return a / b \n print(divide(10, 0))",
+        "ground_truth": "zero"
+    }
+]

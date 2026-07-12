@@ -13,6 +13,8 @@ services:
       - GROQ_API_KEY=${GROQ_API_KEY:-}
       - BIFROST_MODE=batch
       - CACHE_PATH=/cache/responses.json
+      - OLLAMA_NUM_PARALLEL=4
+      - OLLAMA_MAX_QUEUE=4
     volumes:
       - ./input:/input:ro
       - ./output:/output

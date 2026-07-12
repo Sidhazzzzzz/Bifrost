@@ -1,0 +1,32 @@
+[
+    {
+        "task_id": "ve1",
+        "category": "mathematical",
+        "prompt": "What is 1 + 1?",
+        "ground_truth": "2"
+    },
+    {
+        "task_id": "ve2",
+        "category": "factual",
+        "prompt": "What color is a clear sky during the day?",
+        "ground_truth": "blue"
+    },
+    {
+        "task_id": "ve3",
+        "category": "sentiment",
+        "prompt": "I love this!",
+        "ground_truth": "positive"
+    },
+    {
+        "task_id": "ve4",
+        "category": "logical_reasoning",
+        "prompt": "If A equals B, and B equals C, does A equal C?",
+        "ground_truth": "yes"
+    },
+    {
+        "task_id": "ve5",
+        "category": "ner",
+        "prompt": "Extract names: John lives in New York.",
+        "ground_truth": "john, new york"
+    }
+]
