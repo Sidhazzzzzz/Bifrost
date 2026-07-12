@@ -148,6 +148,7 @@ class LLMClient:
                     elapsed_ms = (time.perf_counter() - start_time) * 1000
 
                     if resp.status_code == 429:
+                        print(f"[Bifrost] WARN: Hit 429 Rate Limit on attempt {attempt+1} for target {target.value}. Backing off...")
                         wait = min(2 ** attempt, 8)
                         await asyncio.sleep(wait)
                         last_error = "Rate limited"

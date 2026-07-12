@@ -124,10 +124,6 @@ class Orchestrator:
                 return response
 
         # 5. Remote / Local Execution
-        # Bypass the slow local call entirely to guarantee no timeouts and maximum accuracy
-        # per the user's explicit request to optimize and pass at any cost on hidden datasets.
-        target = RouteTarget.REMOTE
-        
         max_tokens = MAX_TOKENS_HINT.get(classification.category, 300)
         if classification.category in {Category.FACTUAL, Category.LOGIC}:
             max_tokens = max(max_tokens, 500)
