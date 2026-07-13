@@ -1,0 +1,1 @@
+[{"task_id": "fresh_5", "prompt": "I really hated the food at that restaurant, it was absolutely dreadful.", "category": "sentiment", "ground_truth": "negative"}, {"task_id": "fresh_6", "prompt": "The new movie was quite an enjoyable experience.", "category": "sentiment", "ground_truth": "positive"}]

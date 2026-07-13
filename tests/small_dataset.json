@@ -1,0 +1,8 @@
+[
+  {
+    "task_id": "fresh_7",
+    "prompt": "Summarize this: A quick brown fox jumped over a lazy dog on a sunny day, fueled by its high energy.",
+    "category": "summarization",
+    "ground_truth": "fox jumped over dog"
+  }
+]
